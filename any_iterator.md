@@ -12,9 +12,12 @@ This paper proposes adding the template class `std::any_iterator` - a type-erase
   - Example Usage
   - Allocation
   - User-defined Types
+  - Alternatives
 - Prior Art
 - Interaction with other areas of the Standard
 - Wording
+  - Synopsis
+  - Specification
 
 ## Motivation
 Iterators (and soon, ranges also) are a powerful and generic abstraction idiomatic in C++. They allow library and application developers to write their functions restricted only on the properties that they actually need (traversal requirements, dereference type, etc.).
@@ -121,6 +124,40 @@ Following the example given by removal of the `std::allocator_arg_t` constructor
 
 ### User Defined Types
 Whilst I anticipate that most use-cases will be satisfied with the specializations of `any_iterator` for the STL iterator categories, there are projects which extend, or use different iterator categories. For these projects (such as Boost.Iterator), it would be a valid customization point for them to specialize the `std::any_iterator` class for their iterator category as it would be a UDT. 
+
+### Alternatives
+The following are alternative solutions to this problem:
+
+- Instead of having a single `std::any_iterator` template class specialized on the iterator category, have 5 separate classes (`std::any_input_iterator`, `std::any_output_iterator`, `std::any_forward_iterator`, `std::any_bidirectional_iterator`, `std::any_random_access_iterator`).  
+  
+  This is an equally good solution (arguably better). The only thing that it would prevent would be code like the following:
+
+  ```c++
+  template <typename IteratorCategory>
+  void foo(std::any_iterator<IteratorCategory, float> it) {
+      if constexpr (std::is_base_of_v<std::random_access_iterator_tag, IteratorCategory>) {
+          // Algorithm requiring fast random-access.
+      } else {
+          // Fall-back algorithm
+      }
+  }
+  ``` 
+
+  This would be odd anyway, as such an algorithm should be written:
+
+  ```c++
+  template <typename Iterator>
+    requires std::is_same_v<float, typename std::iterator_traits<Iterator>::value_type>
+  void foo(Iterator it) {
+      using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
+
+      if constexpr (std::is_base_of_v<std::random_access_iterator_tag, iterator_category>) {
+          // Algorithm requiring fast random-access
+      } else {
+          // Fall-back algorithm
+      }
+  }
+  ```
 
 ## Prior Art
 Analogous classes exist in several other open-source projects:
