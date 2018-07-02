@@ -175,7 +175,8 @@ namespace std {
               typename Reference = ValueType&,
               typename Pointer = ValueType*,
               typename DifferenceType = std::ptrdiff_t>
-    struct any_iterator<std::input_iterator_tag, ValueType, Reference, Pointer, DifferenceType> : any_iterator<void, ValueType, Reference, Pointer, DifferenceType>
+    struct any_iterator<std::input_iterator_tag, ValueType, Reference, Pointer, DifferenceType> 
+        : any_iterator<void, ValueType, Reference, Pointer, DifferenceType>
     {
         using iterator_category = std::input_iterator_tag;
 
@@ -195,7 +196,8 @@ namespace std {
               typename Reference = ValueType&,
               typename Pointer = ValueType*,
               typename DifferenceType = std::ptrdiff_t>
-    struct any_iterator<std::input_iterator_tag, ValueType, Reference, Pointer, DifferenceType> : any_iterator<void, ValueType, Reference, Pointer, DifferenceType>
+    struct any_iterator<std::input_iterator_tag, ValueType, Reference, Pointer, DifferenceType> 
+        : any_iterator<void, ValueType, Reference, Pointer, DifferenceType>
     {
         using iterator_category = std::input_iterator_tag;
 
@@ -217,7 +219,8 @@ namespace std {
               typename Reference = ValueType&,
               typename Pointer = ValueType*,
               typename DifferenceType = std::ptrdiff_t>
-    struct any_iterator<std::forward_iterator, ValueType, Reference, Pointer, DifferenceType> : any_iterator<std::input_iterator, ValueType, Reference, Pointer, DifferenceType>
+    struct any_iterator<std::forward_iterator, ValueType, Reference, Pointer, DifferenceType> 
+        : any_iterator<std::input_iterator, ValueType, Reference, Pointer, DifferenceType>
     {
         using iterator_category = std::input_iterator_tag;
 
