@@ -162,7 +162,7 @@ namespace std {
         bool operator==(const any_iterator&) const;
         bool operator!=(const any_iterator&) const;
 
-        void swap(any_iterator&) noexcept;
+        void swap(any_iterator& other) noexcept;
 
         any_iterator& operator++();
 
@@ -187,6 +187,8 @@ namespace std {
         template <typename InputIt>
         any_iterator(InputIt it);
 
+        void swap(any_iterator& other) noexcept;
+
         Reference operator*() const;
         Pointer operator->() const;
     };
@@ -196,20 +198,23 @@ namespace std {
               typename Reference = ValueType&,
               typename Pointer = ValueType*,
               typename DifferenceType = std::ptrdiff_t>
-    struct any_iterator<std::input_iterator_tag, ValueType, Reference, Pointer, DifferenceType> 
+    struct any_iterator<std::output_iterator_tag, ValueType, Reference, Pointer, DifferenceType> 
         : any_iterator<void, ValueType, Reference, Pointer, DifferenceType>
     {
-        using iterator_category = std::input_iterator_tag;
+        using iterator_category = std::output_iterator_tag;
 
         template <typename IteratorCategory2,
             typename ValueType2, typename ReferenceType2,
             typename PointerType2, typename DifferenceType2>
         any_iterator(const any_iterator<IteratorCategory2>&);
-        template <typename InputIt>
-        any_iterator(InputIt it);
+        template <typename OutputIt>
+        any_iterator(OutputIt it);
 
         template <typename U>
         any_iterator& operator=(U&& value);
+        any_iterator operator++(int);
+
+        void swap(any_iterator& other) noexcept;
 
         any_iterator& operator*() const noexcept;
     };
@@ -219,22 +224,106 @@ namespace std {
               typename Reference = ValueType&,
               typename Pointer = ValueType*,
               typename DifferenceType = std::ptrdiff_t>
-    struct any_iterator<std::forward_iterator, ValueType, Reference, Pointer, DifferenceType> 
-        : any_iterator<std::input_iterator, ValueType, Reference, Pointer, DifferenceType>
+    struct any_iterator<std::forward_iterator_tag, ValueType, Reference, Pointer, DifferenceType> 
+        : any_iterator<std::input_iterator_tag, ValueType, Reference, Pointer, DifferenceType>
     {
-        using iterator_category = std::input_iterator_tag;
+        using iterator_category = std::forward_iterator_tag;
 
         template <typename IteratorCategory2,
             typename ValueType2, typename ReferenceType2,
             typename PointerType2, typename DifferenceType2>
         any_iterator(const any_iterator<IteratorCategory2>&);
-        template <typename InputIt>
-        any_iterator(InputIt it);
+        template <typename FwdIt>
+        any_iterator(FwdIt it);
 
-        template <typename U>
-        any_iterator& operator=(U&& value);
+        void swap(any_iterator& other) noexcept;
 
-        any_iterator& operator*() const noexcept;
+        Reference operator*() const;
+        Pointer operator->() const;
+
+        any_iterator operator++(int);
     };
+
+    // Specialization for modelling the `BidirectionalIterator` concept.
+    template <typename ValueType,
+              typename Reference = ValueType&,
+              typename Pointer = ValueType*,
+              typename DifferenceType = std::ptrdiff_t>
+    struct any_iterator<std::bidirectional_iterator_tag, ValueType, Reference, Pointer, DifferenceType> 
+        : any_iterator<std::forward_iterator_tag, ValueType, Reference, Pointer, DifferenceType>
+    {
+        using iterator_category = std::bidirectional_iterator_tag;
+
+        template <typename IteratorCategory2,
+            typename ValueType2, typename ReferenceType2,
+            typename PointerType2, typename DifferenceType2>
+        any_iterator(const any_iterator<IteratorCategory2>&);
+        template <typename BiDirIt>
+        any_iterator(BiDirIt it);
+
+        any_iterator& operator--();
+        any_iterator  operator--(int);
+    };
+
+    // Specialization for modelling the `RandomAccessIterator` concept.
+    template <typename ValueType,
+              typename Reference = ValueType&,
+              typename Pointer = ValueType*,
+              typename DifferenceType = std::ptrdiff_t>
+    struct any_iterator<std::random_access_iterator_tag, ValueType, Reference, Pointer, DifferenceType> 
+        : any_iterator<std::bidirectional_iterator_tag, ValueType, Reference, Pointer, DifferenceType>
+    {
+        using iterator_category = std::random_access_iterator_tag;
+
+        template <typename IteratorCategory2,
+            typename ValueType2, typename ReferenceType2,
+            typename PointerType2, typename DifferenceType2>
+        any_iterator(const any_iterator<IteratorCategory2>&);
+        template <typename RandIt>
+        any_iterator(RandIt it);
+
+        any_iterator& operator-=(difference_type offset);
+        any_iterator& operator+=(difference_type offset);
+
+        any_iterator operator-(difference_type offset) const;
+        any_iterator operator+(difference_type offset) const;
+        any_iterator operator[](difference_type offset) const;
+
+        friend any_iterator operator+(difference_type lhs, const any_iterator& rhs);
+
+        bool operator<(any_iterator& rhs) const noexcept;
+        bool operator<=(any_iterator& rhs) const noexcept;
+        bool operator>(any_iterator& rhs) const noexcept;
+        bool operator>=(any_iterator& rhs) const noexcept;
+    };
+
+    // Alias templates
+    template <typename ValueType,
+              typename Reference = ValueType&, 
+              typename Pointer = ValueType*, 
+              typename DifferenceType = std::ptrdiff_t>
+    using any_input_iterator = any_iterator<std::input_iterator_tag, ValueType, Reference, Pointer, DifferenceType>;
+    template <typename ValueType,
+              typename Reference = ValueType&, 
+              typename Pointer = ValueType*, 
+              typename DifferenceType = std::ptrdiff_t>
+    using any_output_iterator = any_iterator<std::output_iterator_tag, ValueType, Reference, Pointer, DifferenceType>;
+    template <typename ValueType,
+              typename Reference = ValueType&, 
+              typename Pointer = ValueType*, 
+              typename DifferenceType = std::ptrdiff_t>
+    using any_forward_iterator = any_iterator<std::forward_iterator_tag, ValueType, Reference, Pointer, DifferenceType>;
+    template <typename ValueType,
+              typename Reference = ValueType&, 
+              typename Pointer = ValueType*, 
+              typename DifferenceType = std::ptrdiff_t>
+    using any_bidirectional_iterator = any_iterator<std::bidirectional_iterator_tag, ValueType, Reference, Pointer, DifferenceType>;
+    template <typename ValueType,
+              typename Reference = ValueType&, 
+              typename Pointer = ValueType*, 
+              typename DifferenceType = std::ptrdiff_t>
+    using any_random_access_iterator = any_iterator<std::random_access_iterator_tag, ValueType, Reference, Pointer, DifferenceType>;
 }
 ```
+
+### Specification
