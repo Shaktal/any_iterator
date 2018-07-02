@@ -1,8 +1,8 @@
 # Type Erased Iterators for modern C++
 
-Author: Thomas Russell \<thomas.russell97@googlemail.com\>  
-Date: 2nd July 2018  
-Target: Library Evolution Working Group (LEWG)
+__Author__: Thomas Russell \<thomas.russell97@googlemail.com\>  
+__Date__: 2nd July 2018  
+__Target__: Library Evolution Working Group (LEWG)
 
 ## Abstract
 This paper proposes adding the template class `std::any_iterator` - a type-erased iterator which can be used where physical encapsulation is desired but the genericity of iterators is beneficial. It also proposes the helper alias templates: `std::any_input_iterator`, `std::any_output_iterator`, `std::any_forward_iterator`, `std::any_bidirectional_iterator` and `std::any_random_access_iterator`.
