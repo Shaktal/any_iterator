@@ -6,6 +6,8 @@
 #include <sample_smallbuffer.hpp>
 #include <sample_rangecheck.hpp>
 
+#include <cassert>
+
 namespace sample {
 
 template <typename IteratorCategory, 
@@ -175,8 +177,12 @@ inline typename any_iterator<std::input_iterator_tag, ValueType, ReferenceType,
     any_iterator<std::input_iterator_tag, ValueType, ReferenceType,
                  PointerType, DifferenceType>::operator*() const
 {
+    detail::AnyIterator_Base& base = BaseClass::base();
+    assert((dynamic_cast<detail::AnyInputIterator_Base<ValueType, 
+        ReferenceType, PointerType>*>(&base)));
+
     return *static_cast<detail::AnyInputIterator_Base<ValueType, 
-        ReferenceType, PointerType>&>(BaseClass::base());
+        ReferenceType, PointerType>&>(base);
 }
 
 template <typename ValueType, typename ReferenceType,
@@ -186,8 +192,12 @@ inline typename any_iterator<std::input_iterator_tag, ValueType, ReferenceType,
     any_iterator<std::input_iterator_tag, ValueType, ReferenceType,
                  PointerType, DifferenceType>::operator->() const
 {
+    detail::AnyIterator_Base& base = BaseClass::base();
+    assert((dynamic_cast<detail::AnyInputIterator_Base<ValueType, 
+        ReferenceType, PointerType>*>(&base)));
+
     return static_cast<detail::AnyInputIterator_Base<ValueType, 
-        ReferenceType, PointerType>&>(BaseClass::base()).operator->();
+        ReferenceType, PointerType>&>(base).operator->();
 }
 
 // MANIPULATORS
