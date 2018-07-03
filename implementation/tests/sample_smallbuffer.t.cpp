@@ -181,3 +181,51 @@ TEST(SmallBuffer, small_derived_copyable)
     ASSERT_THAT(dynamic_cast<test::TestDerived&>(*buffer2), Eq(test));
 }
 
+TEST(SmallBuffer, small_derived_movable)
+{
+    // GIVEN
+    test::TestDerived test{1, 2, 3, 4, 5, 6};
+
+    // WHEN
+    sample::detail::SmallBuffer<test::TestBase, sizeof(test)> buffer(test);
+    sample::detail::SmallBuffer<test::TestBase, sizeof(test)> buffer2(
+        std::move(buffer));
+
+    // THEN
+    using namespace ::testing;
+    ASSERT_THAT(dynamic_cast<test::TestDerived&>(*buffer2), Eq(test));
+}
+
+TEST(SmallBuffer, large_derived_copyable)
+{
+    // GIVEN
+    test::TestDerived test{1, 2, 3, 4, 5, 6};
+
+    // WHEN
+    static_assert(sizeof(test) > sizeof(2 * sizeof(int)));
+    using BufferType = sample::detail::SmallBuffer<test::TestBase, 
+        sizeof(test) - (2u * sizeof(int))>;
+    BufferType buffer(test);
+    BufferType buffer2(buffer);
+
+    // THEN
+    using namespace ::testing;
+    ASSERT_THAT(dynamic_cast<test::TestDerived&>(*buffer2), Eq(test));
+}
+
+TEST(SmallBuffer, large_derived_movable)
+{
+    // GIVEN
+    test::TestDerived test{1, 2, 3, 4, 5, 6};
+
+    // WHEN
+    static_assert(sizeof(test) > sizeof(2 * sizeof(int)));
+    using BufferType = sample::detail::SmallBuffer<test::TestBase, 
+        sizeof(test) - (2u * sizeof(int))>;
+    BufferType buffer(test);
+    BufferType buffer2(std::move(buffer));
+
+    // THEN
+    using namespace ::testing;
+    ASSERT_THAT(dynamic_cast<test::TestDerived&>(*buffer2), Eq(test));
+}
