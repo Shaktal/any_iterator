@@ -249,8 +249,7 @@ namespace std {
         template <typename OutputIt>
         any_iterator(OutputIt it);
 
-        template <typename U>
-        any_iterator& operator=(U&& value);
+        any_iterator& operator=(Reference value);
         any_iterator operator++(int);
 
         void swap(any_iterator& other) noexcept;
