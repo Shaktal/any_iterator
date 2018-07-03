@@ -3,6 +3,8 @@
 
 #include <sample_anyiterator_base.hpp>
 
+#include <iterator>
+
 namespace sample::detail {
 
 template <typename ValueType, typename Reference = ValueType&,

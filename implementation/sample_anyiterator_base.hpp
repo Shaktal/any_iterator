@@ -6,6 +6,9 @@ namespace sample::detail {
 struct AnyIterator_Base {
     // This class provides a common base for all of the other
     // iterator bases
+    
+    // CREATORS
+    virtual ~AnyIterator_Base() = 0;
 
     // ACCESSORS
     virtual bool operator==(const AnyIterator_Base&) const = 0;
@@ -14,6 +17,12 @@ struct AnyIterator_Base {
     // MANIPULATORS
     virtual AnyIterator_Base& operator++() noexcept = 0;
 };
+
+// ===========================================================================
+//      INLINE DEFINITIONS
+// ===========================================================================
+// CREATORS
+inline AnyIterator_Base::~AnyIterator_Base() = default;
 
 } // close namespace sample::detail
 
