@@ -5,7 +5,7 @@ __Date__: 2nd July 2018
 __Target__: Library Evolution Working Group (LEWG)
 
 ## Abstract
-This paper proposes adding the template class `std::any_iterator` - a type-erased iterator which can be used where physical encapsulation is desired but the genericity of iterators is beneficial. It also proposes the helper alias templates: `std::any_input_iterator`, `std::any_output_iterator`, `std::any_forward_iterator`, `std::any_bidirectional_iterator` and `std::any_random_access_iterator`.
+This paper proposes adding the template class `std::any_iterator` - a type-erased iterator which can be used where physical encapsulation is desired but the generality of iterators is beneficial. It also proposes the helper alias templates: `std::any_input_iterator`, `std::any_output_iterator`, `std::any_forward_iterator`, `std::any_bidirectional_iterator` and `std::any_random_access_iterator`.
 
 ## Table of Concepts
 - Motivation  
@@ -20,7 +20,7 @@ This paper proposes adding the template class `std::any_iterator` - a type-erase
   - Specification
 
 ## Motivation
-Iterators (and soon, ranges also) are a powerful and generic abstraction idiomatic in C++. They allow library and application developers to write their functions restricted only on the properties that they actually need (traversal requirements, dereference type, etc.).
+Iterators (and soon, ranges also) are a powerful and generic abstraction idiom in C++. They allow library and application developers to write their functions restricted only on the properties that they actually need (traversal requirements, dereference type, etc.).
 
 However, when looking through a production code-base, it is not uncommon to see code that looks like the following:
 
@@ -63,6 +63,8 @@ std::copy(
 This is, of course, unnecessarily restrictive on the caller of this algorithm; the implementation of `getSomeObjects` doesn't use the fact that `std::vector` is contiguous, they are just interested in having some output range in which to put `Object` objects. It also requires that I have a contiguous vector of `std::string` objects to call it. If I have a range of valid `std::string_view` objects, I have to jump through hoops to use this function, and impose a potentially significant performance penalty.
 
 On the other hand, we are told when designing enterprise-scale software to employ physical design principals. Having to declare the majority of our algorithms as template functions breaks physical encapsulation and can result in complaints of code-bloat, ugliness and increased compilation-time. Thus we are often reduced to writing code for the most common case; using concrete types and being overly restrictive.
+
+Generic programming techniques (such as accepting arbitrary iterator types through templates) also prevent various ubiquitous OOP techniques such as inheritance and run-time polymorphism, again making some developers reluctant to adopt them.
 
 Using type-erasure is the idiomatic way to solve this problem in C++, and we have several existing vocabulary types for solving other problem classes (`std::function`, `std::any`). In this proposal, we consider the addition of a `std::any_iterator` template class that solves this problem for the case of iterators.
 
@@ -174,7 +176,7 @@ No change to the language is necessary to facilitate this feature.
 This is a stand-alone library class, requiring no change to any other area of the library. 
 
 #### Interaction with Concepts
-It is worth noting that both Boost.Range and ranges v3 have an `any_range` class, which acts as a type-erased range. It is likely that such a class would be added to the ISO C++ standard at a later date, in this event, having a pre-existing `any_iterator` would ease the burden of implementation on standard library vendors.
+It is worth noting that both Boost.Range and ranges v3 have an `any_range` class, which acts as a type-erased range adapter. It is likely that such a class would be added to the ISO C++ standard at a later date, in this event, having a pre-existing `any_iterator` would ease the burden of implementation on standard library vendors.
 
 ## Wording
 ### Synopsis
@@ -364,3 +366,14 @@ namespace std {
 ```
 
 ### Specification
+#### Unspecialized `any_iterator` class template
+##### `any_iterator` Types
+`typedef ValueType value_type`  
+`typedef Reference reference`  
+`typedef Pointer pointer`  
+`typedef DifferenceType difference_type`  
+`typedef IteratorCategory iterator_category`
+
+##### `any_iterator` Constructors
+`any_iterator() noexcept = default;`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects:_ Constructs an empty `any_iterator` which compares equal to any other default constructed `any_iterator`.  
