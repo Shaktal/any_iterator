@@ -14,10 +14,19 @@ TEST(InputIteratorTest, constructible_from_input_iterator)
 
 TEST(InputIteratorTest, iterator_works_as_expected)
 {
+    // GIVEN
     using namespace ::testing;
     std::string test("Hello, World!");
+    sample::any_input_iterator<const char> first(begin(test));
+    sample::any_input_iterator<const char> firstCopy(begin(test));
+    sample::any_input_iterator<const char> last(end(test));
+
+    // WHEN
     std::string test2(sample::any_input_iterator<const char>(begin(test)),
                       sample::any_input_iterator<const char>(end(test)));
 
-    ASSERT_THAT(test2, StrEq(test));
+    // THEN
+    EXPECT_THAT(first, Eq(firstCopy));
+    EXPECT_THAT(first, Ne(last));
+    EXPECT_THAT(test2, StrEq(test));
 }
