@@ -136,7 +136,8 @@ template <typename InputIt>
 inline any_iterator<std::input_iterator_tag, ValueType, ReferenceType,
                     PointerType, DifferenceType>::any_iterator(InputIt it)
     : BaseClass(std::move(it), 
-        typename BaseClass::template Key<detail::AnyInputIterator_Impl<InputIt>>{})
+        typename BaseClass::template Key<detail::AnyInputIterator_Impl<InputIt, 
+            ValueType, ReferenceType, PointerType>>{})
 {}
 
 // ACCESSORS

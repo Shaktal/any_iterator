@@ -15,18 +15,15 @@ struct AnyInputIterator_Base : AnyIterator_Base {
     virtual Pointer operator->() const = 0;
 };
 
-template <typename InputIt>
+template <typename InputIt, typename ValueType,
+          typename Reference, typename Pointer>
 struct AnyInputIterator_Impl final 
-    : AnyInputIterator_Base<
-        typename std::iterator_traits<InputIt>::value_type,
-        typename std::iterator_traits<InputIt>::reference,
-        typename std::iterator_traits<InputIt>::pointer
-      >
+    : AnyInputIterator_Base<ValueType, Reference, Pointer>
 { 
     // TYPES
-    using value_type = typename std::iterator_traits<InputIt>::value_type;
-    using reference = typename std::iterator_traits<InputIt>::reference;
-    using pointer = typename std::iterator_traits<InputIt>::pointer;
+    using value_type = ValueType;
+    using reference = Reference;
+    using pointer = Pointer;
 
     // CREATORS
     AnyInputIterator_Impl(InputIt it)
@@ -51,49 +48,59 @@ private:
 //      INLINE DEFINITIONS
 // ===========================================================================
 // CREATORS
-template <typename InputIt>
-inline AnyInputIterator_Impl<InputIt>::AnyInputIterator_Impl(InputIt it)
+template <typename InputIt, typename ValueType, typename Reference, 
+          typename Pointer>
+inline AnyInputIterator_Impl<InputIt, ValueType, 
+    Reference, Pointer>::AnyInputIterator_Impl(InputIt it)
     noexcept(std::is_nothrow_copy_constructible_v<InputIt>)
     : d_it(it)
 {}
 
 // ACCESSORS
-template <typename InputIt>
-inline bool AnyInputIterator_Impl<InputIt>::operator==(
-    const AnyIterator_Base& rhs) const noexcept
+template <typename InputIt, typename ValueType, typename Reference,
+          typename Pointer>
+inline bool AnyInputIterator_Impl<InputIt, ValueType, Reference,
+    Pointer>::operator==(const AnyIterator_Base& rhs) const noexcept
 {
     const AnyInputIterator_Impl* const ptr 
         = dynamic_cast<const AnyInputIterator_Impl*>(&rhs);
     return ptr ? d_it == ptr->d_it : false;
 }
 
-template <typename InputIt>
-inline bool AnyInputIterator_Impl<InputIt>::operator!=(
-    const AnyIterator_Base& rhs) const noexcept
+template <typename InputIt, typename ValueType, typename Reference,
+          typename Pointer>
+inline bool AnyInputIterator_Impl<InputIt, ValueType, Reference,
+    Pointer>::operator!=(const AnyIterator_Base& rhs) const noexcept
 {
     const AnyInputIterator_Impl* const ptr
         = dynamic_cast<const AnyInputIterator_Impl*>(&rhs);
-    return ptr ? d_it == ptr->d_it : false;
+    return ptr ? d_it != ptr->d_it : false;
 }
 
-template <typename InputIt>
-inline typename AnyInputIterator_Impl<InputIt>::reference 
-    AnyInputIterator_Impl<InputIt>::operator*() const 
+template <typename InputIt, typename ValueType, typename Reference,
+          typename Pointer>
+inline typename AnyInputIterator_Impl<InputIt, ValueType,
+    Reference, Pointer>::reference AnyInputIterator_Impl<InputIt,
+    ValueType, Reference, Pointer>::operator*() const 
 {
     return *d_it;
 }
 
-template <typename InputIt>
-inline typename AnyInputIterator_Impl<InputIt>::pointer
-    AnyInputIterator_Impl<InputIt>::operator->() const
+template <typename InputIt, typename ValueType, typename Reference,
+          typename Pointer>
+inline typename AnyInputIterator_Impl<InputIt, ValueType,
+    Reference, Pointer>::pointer AnyInputIterator_Impl<InputIt,
+    ValueType, Reference, Pointer>::operator->() const
 {
     return d_it.operator->();
 }
 
 // MANIPULATORS
-template <typename InputIt>
-inline AnyInputIterator_Impl<InputIt>&
-    AnyInputIterator_Impl<InputIt>::operator++() noexcept
+template <typename InputIt, typename ValueType, typename Reference,
+          typename Pointer>
+inline AnyInputIterator_Impl<InputIt, ValueType, Reference,
+    Pointer>& AnyInputIterator_Impl<InputIt, ValueType,
+    Reference, Pointer>::operator++() noexcept
 {
     ++d_it;
     return *this;
