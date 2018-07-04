@@ -76,7 +76,7 @@ inline AnyForwardIterator_Impl<FwdIt, ValueType, Reference, Pointer>::AnyForward
 
 template <typename ValueType, typename Reference, typename Pointer>
 inline constexpr AnyForwardIterator_Impl<void, ValueType, Reference, 
-    Pointer>::AnyForwardIterator_Impl(Key) 
+    Pointer>::AnyForwardIterator_Impl(Key) noexcept
 {}
 
 // ACCESSORS

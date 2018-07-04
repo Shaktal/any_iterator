@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <forward_list>
+#include <list>
 #include <vector>
 
 #include <gtest/gtest.h>
@@ -80,3 +81,28 @@ TEST(ForwardIteratorTest, iterator_works_as_expected)
     EXPECT_THAT(first, Ne(last));
     EXPECT_THAT(list2, ContainerEq(list));
 }
+
+TEST(BidirectionalIteratorTest, constructible_from_bidirectional_iterator)
+{
+    std::list<int> list;
+    sample::any_bidirectional_iterator<int> it(begin(list));
+}
+
+TEST(BidirectionalIteratorTest, iterator_works_as_expected)
+{
+    // GIVEN
+    std::list<int> list{1, 2, 3, 4, 5};
+    sample::any_bidirectional_iterator<int> first(begin(list));
+    sample::any_bidirectional_iterator<int> last(end(list));
+
+    // WHEN
+    std::list<int> list2{first, last};
+
+    // THEN
+    using namespace ::testing;
+    EXPECT_THAT(*first++, Eq(1));
+    EXPECT_THAT(*first--, Eq(2));
+    EXPECT_THAT(*first, Eq(1));
+    EXPECT_THAT(list2, ContainerEq(list));
+}
+
