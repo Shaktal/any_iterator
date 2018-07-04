@@ -3,6 +3,7 @@
 
 #include <sample_anyiterator_base.hpp>
 #include <sample_anyinputiterator_base.hpp>
+#include <sample_anyoutputiterator_base.hpp>
 #include <sample_smallbuffer.hpp>
 #include <sample_rangecheck.hpp>
 
@@ -31,10 +32,6 @@ struct any_iterator {
     // MANIPULATORS
     any_iterator& operator=(const any_iterator& rhs) = default;
     any_iterator& operator++();
-
-    // ACCESSORS
-    bool operator==(const any_iterator& rhs) const noexcept;
-    bool operator!=(const any_iterator& rhs) const noexcept;
 
 protected:
     // PRIVATE TYPES
@@ -92,6 +89,9 @@ struct any_iterator<std::input_iterator_tag, ValueType, ReferenceType,
     reference operator*() const;
     pointer operator->() const;
 
+    bool operator==(const any_iterator& rhs) const noexcept;
+    bool operator!=(const any_iterator& rhs) const noexcept;
+
 private:
     // PRIVATE TYPES
     using BaseClass = any_iterator<void, ValueType, ReferenceType, 
@@ -103,6 +103,59 @@ template <typename ValueType, typename Reference = ValueType&,
           typename DifferenceType = std::ptrdiff_t>
 using any_input_iterator = any_iterator<std::input_iterator_tag, ValueType, 
                                         Reference, Pointer, DifferenceType>;
+
+// Specialization of `any_iterator` which models the `OutputIterator`
+// named concept.
+template <typename ValueType, typename ReferenceType,
+          typename PointerType, typename DifferenceType>
+struct any_iterator<std::output_iterator_tag, ValueType, ReferenceType,
+                    PointerType, DifferenceType> 
+        : any_iterator<void, ValueType, ReferenceType, 
+                       PointerType, DifferenceType>
+{
+    // TYPES
+    using value_type = ValueType;
+    using reference = ReferenceType;
+    using pointer = PointerType;
+    using difference_type = DifferenceType;
+    using iterator_category = std::output_iterator_tag;
+
+    // CREATORS
+    template <typename IteratorCategory2,
+              typename ValueType2, typename ReferenceType2,
+              typename PointerType2, typename DifferenceType2,
+              typename = std::enable_if_t<
+                std::is_base_of_v<std::output_iterator_tag, IteratorCategory2>
+                && std::is_convertible_v<ValueType2, ValueType>
+                && std::is_convertible_v<ReferenceType2, ReferenceType>
+                && std::is_convertible_v<PointerType2, PointerType>
+                && detail::range_check<PointerType2, PointerType>()>>
+    any_iterator(const any_iterator<IteratorCategory2, ValueType2, 
+                                    ReferenceType2, PointerType2, 
+                                    DifferenceType2>& other);
+    template <typename OutputIt>
+    any_iterator(OutputIt it);
+
+    // ACCESSORS
+    any_iterator& operator*() noexcept;
+    const any_iterator& operator*() const noexcept;
+
+    // MANIPULATORS
+    template <typename U>
+    any_iterator& operator=(U&& value);
+
+private:
+    // PRIVATE TYPES
+    using BaseClass = any_iterator<void, ValueType, ReferenceType, 
+                                   PointerType, DifferenceType>;
+};
+
+template <typename ValueType, typename Reference = ValueType&,
+          typename Pointer = ValueType*, 
+          typename DifferenceType = std::ptrdiff_t>
+using any_output_iterator = any_iterator<std::output_iterator_tag, ValueType, 
+                                        Reference, Pointer, DifferenceType>;
+
 
 // ===========================================================================
 //      INLINE DEFINITIONS
@@ -140,25 +193,58 @@ inline any_iterator<std::input_iterator_tag, ValueType, ReferenceType,
             ValueType, ReferenceType, PointerType>>{})
 {}
 
+template <typename ValueType, typename ReferenceType,
+          typename PointerType, typename DifferenceType>
+template <typename IteratorCategory2, typename ValueType2,
+          typename ReferenceType2, typename PointerType2,
+          typename DifferenceType2, typename>
+inline any_iterator<std::output_iterator_tag, ValueType, ReferenceType,
+                    PointerType, DifferenceType>::any_iterator(
+                        const any_iterator<IteratorCategory2, ValueType2,
+                                           ReferenceType2, PointerType2,
+                                           DifferenceType2>& other)
+    : BaseClass(other)
+{}
+
+template <typename ValueType, typename ReferenceType,
+          typename PointerType, typename DifferenceType>
+template <typename OutputIt>
+inline any_iterator<std::output_iterator_tag, ValueType, ReferenceType,
+                    PointerType, DifferenceType>::any_iterator(OutputIt it)
+    : BaseClass(std::move(it), 
+        typename BaseClass::template Key<detail::AnyOutputIterator_Impl<OutputIt, 
+            ValueType>>{})
+{}
+
 // ACCESSORS
-template <typename IteratorCategory, typename ValueType, 
-          typename ReferenceType, typename PointerType, 
+template <typename ValueType, typename ReferenceType, typename PointerType, 
           typename DifferenceType>
-inline bool any_iterator<IteratorCategory, ValueType, ReferenceType,
+inline bool any_iterator<std::input_iterator_tag, ValueType, ReferenceType,
                          PointerType, DifferenceType>::operator==(
                              const any_iterator& rhs) const noexcept
 {
-    return *d_buffer == *rhs.d_buffer;
+    detail::AnyIterator_Base& base = BaseClass::base();
+    using InputType = detail::AnyInputIterator_Base<ValueType, 
+        ReferenceType, PointerType>;
+    assert((dynamic_cast<InputType*>(&base)));
+
+    return static_cast<InputType&>(base) == 
+        static_cast<InputType&>(rhs.base());
 }
 
-template <typename IteratorCategory, typename ValueType, 
-          typename ReferenceType, typename PointerType, 
+template <typename ValueType, typename ReferenceType, typename PointerType, 
           typename DifferenceType>
-inline bool any_iterator<IteratorCategory, ValueType, ReferenceType,
+inline bool any_iterator<std::input_iterator_tag, ValueType, ReferenceType,
                          PointerType, DifferenceType>::operator!=(
                              const any_iterator& rhs) const noexcept
 {
-    return *d_buffer != *rhs.d_buffer;
+    detail::AnyIterator_Base& base = BaseClass::base();
+    using InputType = detail::AnyInputIterator_Base<ValueType, 
+        ReferenceType, PointerType>;
+    assert((dynamic_cast<InputType*>(&base)));
+
+    return static_cast<InputType&>(base) 
+        != static_cast<InputType&>(rhs.base());
 }
 
 template <typename IteratorCategory, typename ValueType, 
@@ -201,6 +287,26 @@ inline typename any_iterator<std::input_iterator_tag, ValueType, ReferenceType,
         ReferenceType, PointerType>&>(base).operator->();
 }
 
+template <typename ValueType, typename Reference,
+          typename Pointer, typename DifferenceType>
+inline any_iterator<std::output_iterator_tag, ValueType,
+    Reference, Pointer, DifferenceType>& 
+    any_iterator<std::output_iterator_tag, ValueType, Reference,
+        Pointer, DifferenceType>::operator*() noexcept
+{
+    return *this;
+}
+
+template <typename ValueType, typename Reference,
+          typename Pointer, typename DifferenceType>
+inline const any_iterator<std::output_iterator_tag, ValueType,
+    Reference, Pointer, DifferenceType>& 
+    any_iterator<std::output_iterator_tag, ValueType, Reference,
+        Pointer, DifferenceType>::operator*() const noexcept
+{
+    return *this;
+}
+
 // MANIPULATORS
 template <typename IteratorCategory, typename ValueType, 
           typename ReferenceType, typename PointerType, 
@@ -210,6 +316,21 @@ inline any_iterator<IteratorCategory, ValueType, ReferenceType, PointerType,
                     ReferenceType, PointerType, DifferenceType>::operator++()
 {
     this->d_buffer->operator++();
+    return *this;
+}
+
+template <typename ValueType, typename Reference,
+          typename Pointer, typename DifferenceType>
+template <typename U>
+inline any_iterator<std::output_iterator_tag, ValueType, Reference, 
+    Pointer, DifferenceType>& any_iterator<std::output_iterator_tag, ValueType,
+    Reference, Pointer, DifferenceType>::operator=(U&& value)
+{
+    detail::AnyIterator_Base& base = BaseClass::base();
+    assert((dynamic_cast<detail::AnyOutputIterator_Base<ValueType>*>(
+        &base)));
+
+    static_cast<detail::AnyOutputIterator_Base<ValueType>&>(base) = std::forward<U>(value);
     return *this;
 }
 

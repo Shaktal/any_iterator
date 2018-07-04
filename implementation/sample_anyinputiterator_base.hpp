@@ -11,6 +11,9 @@ template <typename ValueType, typename Reference = ValueType&,
           typename Pointer = ValueType*>
 struct AnyInputIterator_Base : AnyIterator_Base {
     // ACCESSORS
+    virtual bool operator==(const AnyIterator_Base&) const = 0;
+    virtual bool operator!=(const AnyIterator_Base&) const = 0;
+
     virtual Reference operator*() const = 0;
     virtual Pointer operator->() const = 0;
 };
@@ -30,8 +33,8 @@ struct AnyInputIterator_Impl final
         noexcept(std::is_nothrow_copy_constructible_v<InputIt>);
 
     // ACCESSORS
-    bool operator==(const AnyIterator_Base& rhs) const noexcept override;
-    bool operator!=(const AnyIterator_Base& rhs) const noexcept override;
+    bool operator==(const AnyIterator_Base& rhs) const override;
+    bool operator!=(const AnyIterator_Base& rhs) const override;
 
     reference operator*() const override;
     pointer operator->() const override;
@@ -60,7 +63,7 @@ inline AnyInputIterator_Impl<InputIt, ValueType,
 template <typename InputIt, typename ValueType, typename Reference,
           typename Pointer>
 inline bool AnyInputIterator_Impl<InputIt, ValueType, Reference,
-    Pointer>::operator==(const AnyIterator_Base& rhs) const noexcept
+    Pointer>::operator==(const AnyIterator_Base& rhs) const
 {
     const AnyInputIterator_Impl* const ptr 
         = dynamic_cast<const AnyInputIterator_Impl*>(&rhs);
@@ -70,7 +73,7 @@ inline bool AnyInputIterator_Impl<InputIt, ValueType, Reference,
 template <typename InputIt, typename ValueType, typename Reference,
           typename Pointer>
 inline bool AnyInputIterator_Impl<InputIt, ValueType, Reference,
-    Pointer>::operator!=(const AnyIterator_Base& rhs) const noexcept
+    Pointer>::operator!=(const AnyIterator_Base& rhs) const
 {
     const AnyInputIterator_Impl* const ptr
         = dynamic_cast<const AnyInputIterator_Impl*>(&rhs);
