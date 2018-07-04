@@ -2,7 +2,11 @@
 
 This repository contains a proposal to add `any_iterator` and some helper alias templates to the C++ standard library. 
 
-The proposal paper can be found as "any_iterator.md", and there is a sample implementation of that proposal within the "implementation" folder.
+## Where is the Proposal?
+The proposal paper can be found as "any_iterator.md" in this respository ([link here](https://github.com/Shaktal/any_iterator/blob/master/any_iterator.md)).
+
+## Is there a sample implementation?
+Yes, there is a sample implementation of that proposal within the "implementation" folder.
 
 To set-up and build the sample implementation and tests, perform the following steps:
 
