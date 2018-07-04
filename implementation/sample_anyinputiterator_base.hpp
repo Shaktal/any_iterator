@@ -3,6 +3,7 @@
 
 #include <sample_anyiterator_base.hpp>
 
+#include <cassert>
 #include <iterator>
 
 namespace sample::detail {
@@ -40,7 +41,7 @@ struct AnyInputIterator_Impl final
     pointer operator->() const override;
 
     // MANIPULATORS
-    AnyInputIterator_Impl& operator++() noexcept override;
+    AnyInputIterator_Impl& operator++() override;
 
 private:
     // DATA
@@ -65,9 +66,10 @@ template <typename InputIt, typename ValueType, typename Reference,
 inline bool AnyInputIterator_Impl<InputIt, ValueType, Reference,
     Pointer>::operator==(const AnyIterator_Base& rhs) const
 {
+    assert(dynamic_cast<const AnyInputIterator_Impl*>(&rhs));
     const AnyInputIterator_Impl* const ptr 
-        = dynamic_cast<const AnyInputIterator_Impl*>(&rhs);
-    return ptr ? d_it == ptr->d_it : false;
+        = static_cast<const AnyInputIterator_Impl*>(&rhs);
+    return d_it == ptr->d_it;
 }
 
 template <typename InputIt, typename ValueType, typename Reference,
@@ -75,9 +77,10 @@ template <typename InputIt, typename ValueType, typename Reference,
 inline bool AnyInputIterator_Impl<InputIt, ValueType, Reference,
     Pointer>::operator!=(const AnyIterator_Base& rhs) const
 {
+    assert(dynamic_cast<const AnyInputIterator_Impl*>(&rhs));
     const AnyInputIterator_Impl* const ptr
-        = dynamic_cast<const AnyInputIterator_Impl*>(&rhs);
-    return ptr ? d_it != ptr->d_it : false;
+        = static_cast<const AnyInputIterator_Impl*>(&rhs);
+    return d_it != ptr->d_it;
 }
 
 template <typename InputIt, typename ValueType, typename Reference,
@@ -103,7 +106,7 @@ template <typename InputIt, typename ValueType, typename Reference,
           typename Pointer>
 inline AnyInputIterator_Impl<InputIt, ValueType, Reference,
     Pointer>& AnyInputIterator_Impl<InputIt, ValueType,
-    Reference, Pointer>::operator++() noexcept
+    Reference, Pointer>::operator++()
 {
     ++d_it;
     return *this;
