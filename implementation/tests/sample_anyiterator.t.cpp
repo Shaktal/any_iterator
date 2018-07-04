@@ -30,3 +30,27 @@ TEST(InputIteratorTest, iterator_works_as_expected)
     EXPECT_THAT(first, Ne(last));
     EXPECT_THAT(test2, StrEq(test));
 }
+
+TEST(OutputIteratorTest, constructible_from_output_iterator)
+{
+    std::vector<char> v;
+    sample::any_output_iterator<char> it(
+        std::back_inserter(v));
+}
+
+TEST(OutputIteratorTest, iterator_works_as_expected)
+{
+    // GIVEN
+    using namespace ::testing;
+    std::string test("Hello, World!");
+    std::string test2;
+
+    sample::any_output_iterator<char> output(
+        std::back_inserter(test2));
+
+    // WHEN
+    std::copy(begin(test), end(test), output);
+
+    // THEN
+    EXPECT_THAT(test2, StrEq(test));
+}
