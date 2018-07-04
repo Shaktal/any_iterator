@@ -19,7 +19,7 @@ This will build the test suite for the sample implementation. Please feel free t
 
 Comments on the proposal paper are also welcomed: please raise them as issues on the github page.
 
-## Example
+### Example Usage
 An example program using the `any_iterator` sample implementation might look something like the following:
 
 ```c++
