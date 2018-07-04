@@ -14,7 +14,7 @@ This paper proposes adding the template class `std::any_iterator` - a type-erase
   - User-defined Types
   - Alternatives
 - Prior Art
-- Interaction with other areas of the Standard
+- Impact on the standard
 - Wording
   - Synopsis
   - Specification
@@ -170,15 +170,11 @@ Analogous classes exist in various other places within the C++ community:
 - As an example of how to use the `dyno` library, there is an `any_iterator` class.
 - There is an ACCU article from July 2000 detailing how to create a simple `any_iterator` class.
 
-## Interaction with other areas of the Standard
-### Core Language
-No change to the language is necessary to facilitate this feature.
+## Impact on the standard
+This proposal is a pure library extension. It requires additions to be made to the standard library header `<iterator>`.
 
-### Library 
-This is a stand-alone library class, requiring no change to any other area of the library. 
-
-#### Interaction with Concepts
-It is worth noting that both Boost.Range and ranges v3 have an `any_range` class, which acts as a type-erased range adapter. It is likely that such a class would be added to the ISO C++ standard at a later date, in this event, having a pre-existing `any_iterator` would ease the burden of implementation on standard library vendors.
+## Interaction with Concepts
+It is worth noting at this point that both Boost.Range and ranges v3 have an `any_range` class, which acts as a type-erased range adapter. It is likely that such a class would be added to the ISO C++ standard at a later date, in this event, having a pre-existing `any_iterator` would ease the burden of implementation on standard library vendors and ease burden of specification on LEWG.
 
 ## Wording
 ### Synopsis
