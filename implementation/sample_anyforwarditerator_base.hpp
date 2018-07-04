@@ -51,7 +51,7 @@ struct AnyForwardIterator_Impl<void, ValueType, Reference, Pointer> final
     struct Key {};
 
     // CREATORS
-    constexpr AnyForwardIterator_Impl(Key);
+    constexpr AnyForwardIterator_Impl(Key) noexcept;
 
     // ACCESSORS
     bool operator==(const AnyIterator_Base& rhs) const override;
@@ -157,7 +157,6 @@ inline AnyForwardIterator_Impl<void, ValueType, Reference, Pointer>&
 {
     assert(false && "Cannot increment a default constructed ForwardIterator");
 }
-
 
 } // close namespace sample::detail
 
