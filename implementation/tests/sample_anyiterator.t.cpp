@@ -106,3 +106,43 @@ TEST(BidirectionalIteratorTest, iterator_works_as_expected)
     EXPECT_THAT(list2, ContainerEq(list));
 }
 
+TEST(RandomAccessIteratorTest, constructible_from_random_access_iterator)
+{
+    std::array<int, 3u> arr{1, 2, 3};
+    sample::any_random_access_iterator<int> first(begin(arr));
+}
+
+TEST(RandomAccessIteratorTest, iterator_works_as_expected)
+{
+    // GIVEN
+    std::array<int, 5u> arr{1, 2, 3, 4, 5};
+    sample::any_random_access_iterator<int> first(begin(arr));
+    sample::any_random_access_iterator<int> last(end(arr));
+
+    // WHEN
+    std::vector<int> v{first, last};
+    auto copy = first;
+    copy += 3;
+    copy -= 1;
+
+    // THEN
+    using namespace ::testing;
+    EXPECT_THAT(*first, Eq(1));
+    EXPECT_THAT(*copy, Eq(3));
+    EXPECT_THAT(v, ElementsAreArray(cbegin(arr), cend(arr)));
+}
+
+TEST(RandomAccessIteratorTest, convertible_to_bidirectional_iterator)
+{
+        // GIVEN
+    std::array<int, 5u> arr{1, 2, 3, 4, 5};
+    sample::any_random_access_iterator<int> first(begin(arr));
+    sample::any_random_access_iterator<int> last(end(arr));
+
+    // WHEN
+    sample::any_bidirectional_iterator<int> weaker(first);
+
+    // THEN
+    using namespace ::testing;
+    EXPECT_THAT(*weaker, Eq(1));
+}

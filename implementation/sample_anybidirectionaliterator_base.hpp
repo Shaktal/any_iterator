@@ -135,7 +135,7 @@ template <typename FwdIt, typename ValueType, typename Reference, typename Point
 inline typename AnyBidirectionalIterator_Impl<FwdIt, ValueType, Reference, Pointer>::pointer
     AnyBidirectionalIterator_Impl<FwdIt, ValueType, Reference, Pointer>::operator->() const
 {
-    return d_it.operator->();
+    return std::addressof(*d_it);
 }
 
 template <typename ValueType, typename Reference, typename Pointer>
@@ -173,7 +173,7 @@ template <typename ValueType, typename Reference, typename Pointer>
 inline AnyBidirectionalIterator_Impl<void, ValueType, Reference, Pointer>&
     AnyBidirectionalIterator_Impl<void, ValueType, Reference, Pointer>::operator--()
 {
-    assert(false && "Cannot increment a default constructed BidirectionalIterator");
+    assert(false && "Cannot decrement a default constructed BidirectionalIterator");
 }
 
 } // close namespace sample::detail

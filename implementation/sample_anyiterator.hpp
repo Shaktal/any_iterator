@@ -6,6 +6,7 @@
 #include <sample_anyoutputiterator_base.hpp>
 #include <sample_anyforwarditerator_base.hpp>
 #include <sample_anybidirectionaliterator_base.hpp>
+#include <sample_anyrandomaccessiterator_base.hpp>
 #include <sample_smallbuffer.hpp>
 #include <sample_rangecheck.hpp>
 
@@ -274,6 +275,10 @@ private:
                                    PointerType, DifferenceType>;
 
 protected:
+    // PRIVATE CREATORS
+    using BaseClass::BaseClass;
+
+protected:
     // PRIVATE ACCESSORS
     using BaseClass::base;
 };
@@ -282,6 +287,76 @@ template <typename ValueType, typename Reference = ValueType&,
           typename Pointer = ValueType*, 
           typename DifferenceType = std::ptrdiff_t>
 using any_bidirectional_iterator = any_iterator<std::bidirectional_iterator_tag, ValueType, 
+                                        Reference, Pointer, DifferenceType>;
+
+// Specialization of `any_iterator` which models the `RandomAccessIterator`
+// named concept.
+template <typename ValueType, typename ReferenceType,
+          typename PointerType, typename DifferenceType>
+struct any_iterator<std::random_access_iterator_tag, ValueType, ReferenceType,
+                    PointerType, DifferenceType> 
+        : any_iterator<std::bidirectional_iterator_tag, ValueType, ReferenceType, 
+                       PointerType, DifferenceType>
+{
+    // TYPES
+    using value_type = ValueType;
+    using reference = ReferenceType;
+    using pointer = PointerType;
+    using difference_type = DifferenceType;
+    using iterator_category = std::random_access_iterator_tag;
+
+    // CREATORS
+    any_iterator();
+
+    template <typename IteratorCategory2,
+              typename ValueType2, typename ReferenceType2,
+              typename PointerType2, typename DifferenceType2,
+              typename = std::enable_if_t<
+                std::is_base_of_v<std::random_access_iterator_tag, IteratorCategory2>
+                && std::is_convertible_v<ValueType2, ValueType>
+                && std::is_convertible_v<ReferenceType2, ReferenceType>
+                && std::is_convertible_v<PointerType2, PointerType>
+                && detail::range_check<PointerType2, PointerType>()>>
+    any_iterator(const any_iterator<IteratorCategory2, ValueType2, 
+                                    ReferenceType2, PointerType2, 
+                                    DifferenceType2>& other);
+    template <typename RandIt>
+    any_iterator(RandIt it);
+
+    // ACCESSORS
+    reference operator[](difference_type offset) const;
+
+    any_iterator operator+(difference_type offset) const;
+    any_iterator operator-(difference_type offset) const;
+    difference_type operator-(const any_iterator& rhs) const;
+
+    bool operator<(const any_iterator& rhs) const;
+    bool operator>(const any_iterator& rhs) const;
+
+    bool operator<=(const any_iterator& rhs) const;
+    bool operator>=(const any_iterator& rhs) const;
+
+    // FREE OPERATORS
+    friend any_iterator operator+(difference_type offset, const any_iterator& rhs);
+
+    // MANIPULATORS
+    any_iterator& operator+=(difference_type offset);
+    any_iterator& operator-=(difference_type offset);
+
+private:
+    // PRIVATE TYPES
+    using BaseClass = any_iterator<std::bidirectional_iterator_tag, ValueType, ReferenceType, 
+                                   PointerType, DifferenceType>;
+
+protected:
+    // PRIVATE ACCESSORS
+    using BaseClass::base;
+};
+
+template <typename ValueType, typename Reference = ValueType&,
+          typename Pointer = ValueType*, 
+          typename DifferenceType = std::ptrdiff_t>
+using any_random_access_iterator = any_iterator<std::random_access_iterator_tag, ValueType, 
                                         Reference, Pointer, DifferenceType>;
 
 // ===========================================================================
@@ -386,9 +461,9 @@ template <typename ValueType, typename ReferenceType,
 inline any_iterator<std::bidirectional_iterator_tag, ValueType, ReferenceType,
                     PointerType, DifferenceType>::any_iterator()
     : BaseClass(
-        typename detail::AnyForwardIterator_Impl<void, ValueType, ReferenceType, 
+        typename detail::AnyBidirectionalIterator_Impl<void, ValueType, ReferenceType, 
             PointerType>::Key{},
-        typename BaseClass::template Key<detail::AnyForwardIterator_Impl<void, 
+        typename BaseClass::template Key<detail::AnyBidirectionalIterator_Impl<void, 
             ValueType, ReferenceType, PointerType>>{})
 {}
 
@@ -415,7 +490,52 @@ inline any_iterator<std::bidirectional_iterator_tag, ValueType, ReferenceType,
             ValueType, ReferenceType, PointerType>>{})
 {}
 
+// RandomAccessIterator specializations
+template <typename ValueType, typename ReferenceType,
+          typename PointerType, typename DifferenceType>
+inline any_iterator<std::random_access_iterator_tag, ValueType, ReferenceType,
+                    PointerType, DifferenceType>::any_iterator()
+    : BaseClass(
+        typename detail::AnyRandomAccessIterator_Impl<void, ValueType, ReferenceType, 
+            PointerType, DifferenceType>::Key{},
+        typename BaseClass::template Key<detail::AnyRandomAccessIterator_Impl<void, 
+            ValueType, ReferenceType, PointerType, DifferenceType>>{})
+{}
+
+template <typename ValueType, typename ReferenceType,
+          typename PointerType, typename DifferenceType>
+template <typename IteratorCategory2, typename ValueType2,
+          typename ReferenceType2, typename PointerType2,
+          typename DifferenceType2, typename>
+inline any_iterator<std::random_access_iterator_tag, ValueType, ReferenceType,
+                    PointerType, DifferenceType>::any_iterator(
+                        const any_iterator<IteratorCategory2, ValueType2,
+                                           ReferenceType2, PointerType2,
+                                           DifferenceType2>& other)
+    : BaseClass(other)
+{}
+
+template <typename ValueType, typename ReferenceType,
+          typename PointerType, typename DifferenceType>
+template <typename RandIt>
+inline any_iterator<std::random_access_iterator_tag, ValueType, ReferenceType,
+                    PointerType, DifferenceType>::any_iterator(RandIt it)
+    : BaseClass(std::move(it), 
+        typename BaseClass::template Key<detail::AnyRandomAccessIterator_Impl<RandIt, 
+            ValueType, ReferenceType, PointerType, DifferenceType>>{})
+{}
+
 // ACCESSORS
+template <typename IteratorCategory, typename ValueType, 
+          typename ReferenceType, typename PointerType, 
+          typename DifferenceType>
+inline detail::AnyIterator_Base& any_iterator<IteratorCategory,
+    ValueType, ReferenceType, PointerType, DifferenceType>::base() const
+    noexcept
+{
+    return *d_buffer;
+}
+
 template <typename ValueType, typename ReferenceType, typename PointerType, 
           typename DifferenceType>
 inline bool any_iterator<std::input_iterator_tag, ValueType, ReferenceType,
@@ -425,7 +545,8 @@ inline bool any_iterator<std::input_iterator_tag, ValueType, ReferenceType,
     detail::AnyIterator_Base& base = BaseClass::base();
     using InputType = detail::AnyInputIterator_Base<ValueType, 
         ReferenceType, PointerType>;
-    assert((dynamic_cast<InputType*>(&base)));
+    assert(dynamic_cast<InputType*>(&base));
+    assert(dynamic_cast<InputType*>(&rhs.base()));
 
     return static_cast<InputType&>(base) == 
         static_cast<InputType&>(rhs.base());
@@ -440,20 +561,11 @@ inline bool any_iterator<std::input_iterator_tag, ValueType, ReferenceType,
     detail::AnyIterator_Base& base = BaseClass::base();
     using InputType = detail::AnyInputIterator_Base<ValueType, 
         ReferenceType, PointerType>;
-    assert((dynamic_cast<InputType*>(&base)));
+    assert(dynamic_cast<InputType*>(&base));
+    assert(dynamic_cast<InputType*>(&rhs.base()));
 
     return static_cast<InputType&>(base) 
         != static_cast<InputType&>(rhs.base());
-}
-
-template <typename IteratorCategory, typename ValueType, 
-          typename ReferenceType, typename PointerType, 
-          typename DifferenceType>
-inline detail::AnyIterator_Base& any_iterator<IteratorCategory,
-    ValueType, ReferenceType, PointerType, DifferenceType>::base() const
-    noexcept
-{
-    return *d_buffer;
 }
 
 template <typename ValueType, typename ReferenceType,
@@ -504,6 +616,115 @@ inline const any_iterator<std::output_iterator_tag, ValueType,
         Pointer, DifferenceType>::operator*() const noexcept
 {
     return *this;
+}
+
+template <typename ValueType, typename ReferenceType,
+          typename PointerType, typename DifferenceType>
+inline typename any_iterator<std::random_access_iterator_tag, ValueType, ReferenceType,
+                    PointerType, DifferenceType>::reference
+    any_iterator<std::random_access_iterator_tag, ValueType, ReferenceType,
+                 PointerType, DifferenceType>::operator[](difference_type offset) const
+{
+    detail::AnyIterator_Base& base = BaseClass::base();
+    assert((dynamic_cast<detail::AnyRandomAccessIterator_Base<ValueType, 
+        ReferenceType, PointerType, DifferenceType>*>(&base)));
+
+    return static_cast<detail::AnyRandomAccessIterator_Base<ValueType, 
+        ReferenceType, PointerType, DifferenceType>&>(base)[offset];
+}
+
+template <typename ValueType, typename ReferenceType,
+          typename PointerType, typename DifferenceType>
+inline any_iterator<std::random_access_iterator_tag, ValueType, ReferenceType,
+                    PointerType, DifferenceType>
+    any_iterator<std::random_access_iterator_tag, ValueType, ReferenceType,
+                 PointerType, DifferenceType>::operator+(difference_type offset) const
+{
+    auto tmp{*this};
+    return tmp += offset;
+}
+
+template <typename ValueType, typename ReferenceType,
+          typename PointerType, typename DifferenceType>
+inline any_iterator<std::random_access_iterator_tag, ValueType, ReferenceType,
+                    PointerType, DifferenceType>
+    any_iterator<std::random_access_iterator_tag, ValueType, ReferenceType,
+                 PointerType, DifferenceType>::operator-(difference_type offset) const
+{
+    auto tmp{*this};
+    return tmp -= offset;
+}
+
+template <typename ValueType, typename ReferenceType,
+          typename PointerType, typename DifferenceType>
+inline typename any_iterator<std::random_access_iterator_tag, ValueType, ReferenceType,
+                    PointerType, DifferenceType>::difference_type
+    any_iterator<std::random_access_iterator_tag, ValueType, ReferenceType,
+                 PointerType, DifferenceType>::operator-(const any_iterator& rhs) const
+{
+    detail::AnyIterator_Base& base = BaseClass::base();
+    using InputType = detail::AnyRandomAccessIterator_Base<ValueType,
+        ReferenceType, PointerType, DifferenceType>;
+    assert(dynamic_cast<InputType*>(&base));
+    assert(dynamic_cast<InputType*>(&rhs.base()));
+
+    return static_cast<InputType&>(base) - static_cast<InputType&>(rhs.base());
+}
+
+template <typename ValueType, typename ReferenceType,
+          typename PointerType, typename DifferenceType>
+inline bool any_iterator<std::random_access_iterator_tag, ValueType, ReferenceType,
+    PointerType, DifferenceType>::operator<(const any_iterator& rhs) const
+{
+    detail::AnyIterator_Base& base = BaseClass::base();
+    using InputType = detail::AnyRandomAccessIterator_Base<ValueType, 
+        ReferenceType, PointerType, DifferenceType>;
+    assert(dynamic_cast<InputType*>(&base));
+    assert(dynamic_cast<InputType*>(&rhs.base()));
+
+    return static_cast<InputType&>(base) < static_cast<InputType&>(rhs.base());
+}
+
+template <typename ValueType, typename ReferenceType,
+          typename PointerType, typename DifferenceType>
+inline bool any_iterator<std::random_access_iterator_tag, ValueType, ReferenceType,
+    PointerType, DifferenceType>::operator>(const any_iterator& rhs) const
+{
+    detail::AnyIterator_Base& base = BaseClass::base();
+    using InputType = detail::AnyRandomAccessIterator_Base<ValueType, 
+        ReferenceType, PointerType, DifferenceType>;
+    assert(dynamic_cast<InputType*>(&base));
+    assert(dynamic_cast<InputType*>(&rhs.base()));
+
+    return static_cast<InputType&>(base) > static_cast<InputType&>(rhs.base());
+}
+
+template <typename ValueType, typename ReferenceType,
+          typename PointerType, typename DifferenceType>
+inline bool any_iterator<std::random_access_iterator_tag, ValueType, ReferenceType,
+    PointerType, DifferenceType>::operator<=(const any_iterator& rhs) const
+{
+    detail::AnyIterator_Base& base = BaseClass::base();
+    using InputType = detail::AnyRandomAccessIterator_Base<ValueType, 
+        ReferenceType, PointerType, DifferenceType>;
+    assert(dynamic_cast<InputType*>(&base));
+    assert(dynamic_cast<InputType*>(&rhs.base()));
+
+    return static_cast<InputType&>(base) <= static_cast<InputType&>(rhs.base());
+}
+
+template <typename ValueType, typename ReferenceType,
+          typename PointerType, typename DifferenceType>
+inline bool any_iterator<std::random_access_iterator_tag, ValueType, ReferenceType,
+    PointerType, DifferenceType>::operator>=(const any_iterator& rhs) const
+{
+    detail::AnyIterator_Base& base = BaseClass::base();
+    using InputType = detail::AnyRandomAccessIterator_Base<ValueType, 
+        ReferenceType, PointerType, DifferenceType>;
+    assert(dynamic_cast<InputType*>(&base));
+    assert(dynamic_cast<InputType*>(&rhs.base()));
+
+    return static_cast<InputType&>(base) >= static_cast<InputType&>(rhs.base());
 }
 
 // MANIPULATORS
@@ -568,6 +789,34 @@ inline any_iterator<std::bidirectional_iterator_tag, ValueType, ReferenceType, P
     auto tmp{*this};
     --*this;
     return tmp;
+}
+
+template <typename ValueType, typename Reference, typename Pointer, typename DifferenceType>
+inline any_iterator<std::random_access_iterator_tag, ValueType, Reference, Pointer,
+    DifferenceType>& any_iterator<std::random_access_iterator_tag, ValueType, Reference,
+    Pointer, DifferenceType>::operator+=(difference_type offset)
+{
+    detail::AnyIterator_Base& base = BaseClass::base();
+    using InputType = detail::AnyRandomAccessIterator_Base<ValueType, 
+        Reference, Pointer, DifferenceType>;
+    assert(dynamic_cast<InputType*>(&base));
+
+    static_cast<InputType&>(base) += offset;
+    return *this;
+}
+
+template <typename ValueType, typename Reference, typename Pointer, typename DifferenceType>
+inline any_iterator<std::random_access_iterator_tag, ValueType, Reference, Pointer,
+    DifferenceType>& any_iterator<std::random_access_iterator_tag, ValueType, Reference,
+    Pointer, DifferenceType>::operator-=(difference_type offset)
+{
+    detail::AnyIterator_Base& base = BaseClass::base();
+    using InputType = detail::AnyRandomAccessIterator_Base<ValueType, 
+        Reference, Pointer, DifferenceType>;
+    assert(dynamic_cast<InputType*>(&base));
+
+    static_cast<InputType&>(base) -= offset;
+    return *this;
 }
 
 } // close namespace sample

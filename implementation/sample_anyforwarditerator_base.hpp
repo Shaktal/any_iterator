@@ -132,7 +132,7 @@ template <typename FwdIt, typename ValueType, typename Reference, typename Point
 inline typename AnyForwardIterator_Impl<FwdIt, ValueType, Reference, Pointer>::pointer
     AnyForwardIterator_Impl<FwdIt, ValueType, Reference, Pointer>::operator->() const
 {
-    return d_it.operator->();
+    return std::addressof(*d_it);
 }
 
 template <typename ValueType, typename Reference, typename Pointer>
