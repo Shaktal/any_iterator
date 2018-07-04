@@ -162,11 +162,13 @@ The following are alternative solutions to this problem:
   ```
 
 ## Prior Art
-Analogous classes exist in several other open-source projects:
+Analogous classes exist in various other places within the C++ community:
 
 - Thomas Becker's `any_iterator` 
 - Adobe's ASL has a suite of type-erased iterator classes for each of the STL iterator tags.
 - Boost has an `any_iterator` internally which is used to implement Boost.Ranges `any_range`.
+- As an example of how to use the `dyno` library, there is an `any_iterator` class.
+- There is an ACCU article from July 2000 detailing how to create a simple `any_iterator` class.
 
 ## Interaction with other areas of the Standard
 ### Core Language
