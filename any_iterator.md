@@ -194,7 +194,6 @@ namespace std {
         using difference_type = DifferenceType;
         using iterator_category = IteratorCategory;
 
-        any_iterator() noexcept = default;
         any_iterator(const any_iterator&) = default;
         ~any_iterator() = default;
 
