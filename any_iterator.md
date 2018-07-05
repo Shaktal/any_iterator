@@ -215,7 +215,7 @@ namespace std {
         void* base() const noexcept;
 
         reference operator*() const;
-        /*Implementation-defined*/ operator->() const;
+        /*unspecified*/ operator->() const;
             // SFINAE'd out unless InputIterator
 
         reference operator[](difference_type offset) const;
@@ -299,10 +299,23 @@ namespace std {
 `any_iterator(const any_iterator& other)`  
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Copy-constructs an `any_iterator` from `other`, such that the underlying iterator is formed by copy-construction from the underlying iterator of `other`.
 
-`any_iterator(any_iterator&& other)`
+`any_iterator(any_iterator&& other)`  
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Move-constructs an `any_iterator` from `other`, such that the underlying iterator is formed by move-construction from the underlying iterator of `other`.
-
 
 `template <typename It> any_iterator(It it)`  
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Constructs an `any_iterator` with a type-erased underlying iterator of type `It` move-constructed from `it`.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Requires_: `typename std::iterator_traits<It>::iterator_category` must be derived from `iterator_category`.
+
+##### Class template `any_iterator` observers [any_iterator.observers]
+`void* base() const noexcept`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Returns a pointer to the underlying iterator whose type has been erased by this `any_iterator`. If called on a singular iterator, this will return the null pointer.
+
+`reference operator*() const;`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Returns a `reference` to the result of dereferencing the underlying iterator.
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and contain a dereferencible underlying iterator. Otherwise the behaviour is undefined.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `input_iterator_tag`.
+
+`/*unspecified*/ operator->() const;`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Returns an unspecified object which implements `operator->` such that the end result is as if the user had called `operator->` directly on the underlying iterator.
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and contain a dereferencible underlying iterator. Otherwise the behaviour is undefined.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `input_iterator_tag`.
