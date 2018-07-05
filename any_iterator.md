@@ -180,157 +180,85 @@ It is worth noting at this point that both Boost.Range and ranges v3 have an `an
 ### Synopsis
 ```c++
 namespace std {
-    template <typename IteratorCategory,
-              typename ValueType,
-              typename Reference = ValueType&,
-              typename Pointer = ValueType*,
-              typename DifferenceType = std::ptrdiff_t>
+    template <typename IteratorCategory, typename ValueType,
+          typename ReferenceType, typename PointerType,
+          typename DifferenceType>
     struct any_iterator {
+        // TYPES
         using value_type = ValueType;
-        using reference = Reference;
-        using pointer = Pointer;
+        using reference = ReferenceType;
+        using pointer = PointerType;
         using difference_type = DifferenceType;
         using iterator_category = IteratorCategory;
 
-        any_iterator(const any_iterator&) = default;
-        ~any_iterator() = default;
+        // CREATORS
+        any_iterator() noexcept;
+            // SFINAE'd out unless ForwardIterator
 
-        bool operator==(const any_iterator&) const;
-        bool operator!=(const any_iterator&) const;
+        any_iterator(const any_iterator&);
+        any_iterator(any_iterator&&);
 
-        void swap(any_iterator& other) noexcept;
+        template <typename It>
+        any_iterator(It it);
+
+        template <typename OtherCategory, typename OtherValue, 
+                typename OtherReference, typename OtherPointer,
+                typename OtherDifferenceType>
+        any_iterator(const any_iterator<OtherCategory, OtherValue, OtherReference, OtherPointer, OtherDifferenceType>& other);
+        template <typename OtherCategory, typename OtherValue, 
+                typename OtherReference, typename OtherPointer,
+                typename OtherDifferenceType>
+        any_iterator(any_iterator<OtherCategory, OtherValue, OtherReference, OtherPointer, OtherDifferenceType>&& other);
+        ~any_iterator();
+
+        // ACCESSORS
+        void* base() const noexcept;
+
+        reference operator*() const;
+        /*Implementation-defined*/ operator->() const;
+            // SFINAE'd out unless InputIterator
+
+        reference operator[](difference_type offset) const;
+            // SFINAE'd out unless RandomAccessIterator
+
+        bool operator==(const any_iterator& rhs) const;
+        bool operator!=(const any_iterator& rhs) const;
+            // SFINAE'd out unless InputIterator
+
+        bool operator<(const any_iterator& rhs) const;
+        bool operator>(const any_iterator& rhs) const;
+        bool operator<=(const any_iterator& rhs) const;
+        bool operator>=(const any_iterator& rhs) const;
+        any_iterator operator+(difference_type offset) const;
+        any_iterator operator-(difference_type offset) const;
+        difference_type operator-(const any_iterator& rhs) const;
+            // SFINAE'd out unless RandomAccessIterator
+
+        // MANIPULATORS
+        void swap(any_iterator& other);
 
         any_iterator& operator++();
 
-    private:
-        SmallBuffer d_buffer; // Exposition Only
-    }; 
-
-    // Specialization for modelling the `InputIterator` concept.
-    template <typename ValueType,
-              typename Reference = ValueType&,
-              typename Pointer = ValueType*,
-              typename DifferenceType = std::ptrdiff_t>
-    struct any_iterator<std::input_iterator_tag, ValueType, Reference, Pointer, DifferenceType> 
-        : any_iterator<void, ValueType, Reference, Pointer, DifferenceType>
-    {
-        using iterator_category = std::input_iterator_tag;
-
-        template <typename IteratorCategory2,
-            typename ValueType2, typename ReferenceType2,
-            typename PointerType2, typename DifferenceType2>
-        any_iterator(const any_iterator<IteratorCategory2>&);
-        template <typename InputIt>
-        any_iterator(InputIt it);
-
-        void swap(any_iterator& other) noexcept;
-
-        Reference operator*() const;
-        Pointer operator->() const;
-    };
-
-    // Specialization for modelling the `OutputIterator` concept.
-    template <typename ValueType,
-              typename Reference = ValueType&,
-              typename Pointer = ValueType*,
-              typename DifferenceType = std::ptrdiff_t>
-    struct any_iterator<std::output_iterator_tag, ValueType, Reference, Pointer, DifferenceType> 
-        : any_iterator<void, ValueType, Reference, Pointer, DifferenceType>
-    {
-        using iterator_category = std::output_iterator_tag;
-
-        template <typename IteratorCategory2,
-            typename ValueType2, typename ReferenceType2,
-            typename PointerType2, typename DifferenceType2>
-        any_iterator(const any_iterator<IteratorCategory2>&);
-        template <typename OutputIt>
-        any_iterator(OutputIt it);
-
-        any_iterator& operator=(Reference value);
-        any_iterator operator++(int);
-
-        void swap(any_iterator& other) noexcept;
-
-        any_iterator& operator*() const noexcept;
-    };
-
-    // Specialization for modelling the `ForwardIterator` concept.
-    template <typename ValueType,
-              typename Reference = ValueType&,
-              typename Pointer = ValueType*,
-              typename DifferenceType = std::ptrdiff_t>
-    struct any_iterator<std::forward_iterator_tag, ValueType, Reference, Pointer, DifferenceType> 
-        : any_iterator<std::input_iterator_tag, ValueType, Reference, Pointer, DifferenceType>
-    {
-        using iterator_category = std::forward_iterator_tag;
-
-        template <typename IteratorCategory2,
-            typename ValueType2, typename ReferenceType2,
-            typename PointerType2, typename DifferenceType2>
-        any_iterator(const any_iterator<IteratorCategory2>&);
-        template <typename FwdIt>
-        any_iterator(FwdIt it);
-
-        void swap(any_iterator& other) noexcept;
-
-        Reference operator*() const;
-        Pointer operator->() const;
+        any_iterator& operator*();
+            // SFINAE'd out unless OutputIterator
+        any_iterator& operator=(value_type value);
+            // SFINAE'd out unless OutputIterator
 
         any_iterator operator++(int);
-    };
-
-    // Specialization for modelling the `BidirectionalIterator` concept.
-    template <typename ValueType,
-              typename Reference = ValueType&,
-              typename Pointer = ValueType*,
-              typename DifferenceType = std::ptrdiff_t>
-    struct any_iterator<std::bidirectional_iterator_tag, ValueType, Reference, Pointer, DifferenceType> 
-        : any_iterator<std::forward_iterator_tag, ValueType, Reference, Pointer, DifferenceType>
-    {
-        using iterator_category = std::bidirectional_iterator_tag;
-
-        template <typename IteratorCategory2,
-            typename ValueType2, typename ReferenceType2,
-            typename PointerType2, typename DifferenceType2>
-        any_iterator(const any_iterator<IteratorCategory2>&);
-        template <typename BiDirIt>
-        any_iterator(BiDirIt it);
+            // SFINAE'd out unless ForwardIterator
 
         any_iterator& operator--();
-        any_iterator  operator--(int);
-    };
+        any_iterator operator--(int);
+            // SFINAE'd out unless BidirectionalIterator
 
-    // Specialization for modelling the `RandomAccessIterator` concept.
-    template <typename ValueType,
-              typename Reference = ValueType&,
-              typename Pointer = ValueType*,
-              typename DifferenceType = std::ptrdiff_t>
-    struct any_iterator<std::random_access_iterator_tag, ValueType, Reference, Pointer, DifferenceType> 
-        : any_iterator<std::bidirectional_iterator_tag, ValueType, Reference, Pointer, DifferenceType>
-    {
-        using iterator_category = std::random_access_iterator_tag;
-
-        template <typename IteratorCategory2,
-            typename ValueType2, typename ReferenceType2,
-            typename PointerType2, typename DifferenceType2>
-        any_iterator(const any_iterator<IteratorCategory2>&);
-        template <typename RandIt>
-        any_iterator(RandIt it);
-
-        any_iterator& operator-=(difference_type offset);
         any_iterator& operator+=(difference_type offset);
+        any_iterator& operator-=(difference_type offset);
+            // SFINAE'd out unless RandomAccessIterator
 
-        any_iterator operator-(difference_type offset) const;
-        any_iterator operator+(difference_type offset) const;
-        any_iterator operator[](difference_type offset) const;
-
-        friend any_iterator operator+(difference_type lhs, const any_iterator& rhs);
-
-        bool operator<(any_iterator& rhs) const noexcept;
-        bool operator<=(any_iterator& rhs) const noexcept;
-        bool operator>(any_iterator& rhs) const noexcept;
-        bool operator>=(any_iterator& rhs) const noexcept;
+    private:
+        BufferType d_buffer; // Exposition Only
     };
+
 
     // Alias templates
     template <typename ValueType,
@@ -362,14 +290,12 @@ namespace std {
 ```
 
 ### Specification
-#### Unspecialized `any_iterator` class template
-##### `any_iterator` Types
-`typedef ValueType value_type`  
-`typedef Reference reference`  
-`typedef Pointer pointer`  
-`typedef DifferenceType difference_type`  
-`typedef IteratorCategory iterator_category`
+#### Class template `any_iterator` [any_iterator]
+##### Class template `any_iterator` constructors [any_iterator.ctor]
+`any_iterator() noexcept`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Constructs an empty `any_iterator`, equivalent to the singular iterator for `ForwardIterator`.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This constructor shall not participate in overload resolution unless `IteratorCategory` is derived from `input_iterator_tag`.
 
-##### `any_iterator` Constructors
-`any_iterator() noexcept = default;`  
-&nbsp;&nbsp;&nbsp;&nbsp;_Effects:_ Constructs an empty `any_iterator` which compares equal to any other default constructed `any_iterator`.  
+`template <typename It> any_iterator(It it)`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Constructs an `any_iterator` with a type-erased underlying iterator of type `It` move-constructed from `it`.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: `typename std::iterator_traits<It>::iterator_category` must be derived from `iterator_category`.
