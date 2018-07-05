@@ -319,3 +319,41 @@ namespace std {
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Returns an unspecified object which implements `operator->` such that the end result is as if the user had called `operator->` directly on the underlying iterator.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and contain a dereferencible underlying iterator. Otherwise the behaviour is undefined.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `input_iterator_tag`.
+
+`reference operator[](difference_type offset) const;`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Returns the equivalent of the expression `*(*this + offset)`.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and upon being advanced by `offset` shall be dereferencable; otherwise the behaviour is undefined.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `random_access_iterator_tag`.
+
+##### Class template `any_iterator` comparison operators [any_iterator.compare]
+`bool operator==(const any_iterator& rhs) const;`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Compares the underlying iterators of `*this` and `rhs` for equality.    
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and the underlying iterators of `*this` and `rhs` should have the same type and be equality comparable.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `input_iterator_tag`.
+
+
+`bool operator!=(const any_iterator& rhs) const;`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Compares the underlying iterators of `*this` and `rhs` for inequality.    
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and the underlying iterators of `*this` and `rhs` should have the same type and be equality comparable.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `input_iterator_tag`.
+
+
+`bool operator<(const any_iterator& rhs) const;`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Compares the underlying iterators of `*this` and `rhs` using `operator<`.    
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and the underlying iterators of `*this` and `rhs` should have the same type and be less-than comparable.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `random_access_iterator_tag`.
+
+`bool operator>(const any_iterator& rhs) const;`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Compares the underlying iterators of `*this` and `rhs` using `operator>`.    
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and the underlying iterators of `*this` and `rhs` should have the same type and be greater-than comparable.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `random_access_iterator_tag`.
+
+`bool operator<=(const any_iterator& rhs) const;`
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Compares the underlying iterators of `*this` and `rhs` using `operator<=`.    
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and the underlying iterators of `*this` and `rhs` should have the same type and be less-than and equality comparable.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `random_access_iterator_tag`.
+
+`bool operator>=(const any_iterator& rhs) const;`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Compares the underlying iterators of `*this` and `rhs` using `operator>=`.    
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and the underlying iterators of `*this` and `rhs` should have the same type and be greater-than and equality comparable.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `random_access_iterator_tag`.
