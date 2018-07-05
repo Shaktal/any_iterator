@@ -294,7 +294,14 @@ namespace std {
 ##### Class template `any_iterator` constructors [any_iterator.ctor]
 `any_iterator() noexcept`  
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Constructs an empty `any_iterator`, equivalent to the singular iterator for `ForwardIterator`.  
-&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This constructor shall not participate in overload resolution unless `IteratorCategory` is derived from `input_iterator_tag`.
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This constructor shall not participate in overload resolution unless `iterator_category` is derived from `input_iterator_tag`.
+
+`any_iterator(const any_iterator& other)`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Copy-constructs an `any_iterator` from `other`, such that the underlying iterator is formed by copy-construction from the underlying iterator of `other`.
+
+`any_iterator(any_iterator&& other)`
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Move-constructs an `any_iterator` from `other`, such that the underlying iterator is formed by move-construction from the underlying iterator of `other`.
+
 
 `template <typename It> any_iterator(It it)`  
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Constructs an `any_iterator` with a type-erased underlying iterator of type `It` move-constructed from `it`.  
