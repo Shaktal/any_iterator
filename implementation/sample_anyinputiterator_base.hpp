@@ -34,6 +34,8 @@ struct AnyInputIterator_Impl final
         noexcept(std::is_nothrow_copy_constructible_v<InputIt>);
 
     // ACCESSORS
+    const void* base() const noexcept override;
+
     bool operator==(const AnyIterator_Base& rhs) const override;
     bool operator!=(const AnyIterator_Base& rhs) const override;
 
@@ -41,6 +43,8 @@ struct AnyInputIterator_Impl final
     pointer operator->() const override;
 
     // MANIPULATORS
+    void* base() noexcept override;
+
     AnyInputIterator_Impl& operator++() override;
 
 private:
@@ -61,6 +65,14 @@ inline AnyInputIterator_Impl<InputIt, ValueType,
 {}
 
 // ACCESSORS
+template <typename InputIt, typename ValueType, typename Reference,
+          typename Pointer>
+inline const void* AnyInputIterator_Impl<InputIt, ValueType, Reference,
+    Pointer>::base() const noexcept
+{
+    return static_cast<const void*>(&d_it);
+}
+
 template <typename InputIt, typename ValueType, typename Reference,
           typename Pointer>
 inline bool AnyInputIterator_Impl<InputIt, ValueType, Reference,
@@ -102,6 +114,14 @@ inline typename AnyInputIterator_Impl<InputIt, ValueType,
 }
 
 // MANIPULATORS
+template <typename InputIt, typename ValueType, typename Reference,
+          typename Pointer>
+inline void* AnyInputIterator_Impl<InputIt, ValueType, Reference,
+    Pointer>::base() noexcept
+{
+    return static_cast<void*>(&d_it);
+}
+
 template <typename InputIt, typename ValueType, typename Reference,
           typename Pointer>
 inline AnyInputIterator_Impl<InputIt, ValueType, Reference,

@@ -24,7 +24,12 @@ struct AnyOutputIterator_Impl final : AnyOutputIterator_Base<OutputType>
     AnyOutputIterator_Impl(OutputIt it)
         noexcept(std::is_nothrow_copy_constructible_v<OutputIt>);
 
+    // ACCESSORS
+    const void* base() const noexcept override;
+
     // MANIPULATORS
+    void* base() noexcept override;
+
     AnyOutputIterator_Impl& operator=(OutputType&& value) override;
     AnyOutputIterator_Impl& operator=(const OutputType& value) override;
     AnyOutputIterator_Impl& operator++() override;
@@ -58,7 +63,21 @@ inline AnyOutputIterator_Impl<OutputIt, OutputType>::AnyOutputIterator_Impl(
     : d_it(it)
 {}
 
+// ACCESSORS
+template <typename OutputIt, typename OutputType>
+inline const void* AnyOutputIterator_Impl<OutputIt, OutputType>::base() const
+    noexcept
+{
+    return static_cast<const void*>(&d_it);
+}
+
 // MANIPULATORS
+template <typename OutputIt, typename OutputType>
+inline void* AnyOutputIterator_Impl<OutputIt, OutputType>::base() noexcept
+{
+    return static_cast<void*>(&d_it);
+}
+
 template <typename OutputIt, typename OutputType>
 inline AnyOutputIterator_Impl<OutputIt, OutputType>& 
     AnyOutputIterator_Impl<OutputIt, OutputType>::operator=(OutputType&& value)

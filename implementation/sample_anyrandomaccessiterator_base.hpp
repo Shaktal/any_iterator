@@ -48,6 +48,8 @@ public:
         noexcept(std::is_nothrow_copy_constructible_v<RandIt>);
 
     // ACCESSORS
+    const void* base() const noexcept override;
+
     bool operator==(const AnyIterator_Base& rhs) const override;
     bool operator!=(const AnyIterator_Base& rhs) const override;
 
@@ -65,6 +67,8 @@ public:
     difference_type operator-(const BaseClass& rhs) const override;
 
     // MANIPULATORS
+    void* base() noexcept override;
+
     AnyRandomAccessIterator_Impl& operator++() override;
     AnyRandomAccessIterator_Impl& operator--() override;
     AnyRandomAccessIterator_Impl& operator+=(difference_type offset) override;
@@ -86,8 +90,6 @@ struct AnyRandomAccessIterator_Impl<void, ValueType, Reference, Pointer, Differe
     using pointer = Pointer;
     using difference_type = DifferenceType;
 
-    struct Key {};
-
 private:
     // PRIVATE TYPES
     using BaseClass = AnyRandomAccessIterator_Base<ValueType, Reference, 
@@ -95,9 +97,11 @@ private:
 
 public:
     // CREATORS
-    constexpr AnyRandomAccessIterator_Impl(Key) noexcept;
+    constexpr AnyRandomAccessIterator_Impl() noexcept = default;
 
     // ACCESSORS
+    const void* base() const noexcept override;
+
     bool operator==(const AnyIterator_Base& rhs) const override;
     bool operator!=(const AnyIterator_Base& rhs) const override;
 
@@ -115,6 +119,8 @@ public:
     difference_type operator-(const BaseClass& rhs) const override;
 
     // MANIPULATORS
+    void* base() noexcept override;
+
     AnyRandomAccessIterator_Impl& operator++() override;
     AnyRandomAccessIterator_Impl& operator--() override;
     AnyRandomAccessIterator_Impl& operator+=(difference_type offset) override;
@@ -133,13 +139,22 @@ inline AnyRandomAccessIterator_Impl<RandIt, ValueType, Reference, Pointer,
     : d_it(it)
 {}
 
-template <typename ValueType, typename Reference,
-          typename Pointer, typename DifferenceType>
-inline constexpr AnyRandomAccessIterator_Impl<void, ValueType, Reference, Pointer,
-    DifferenceType>::AnyRandomAccessIterator_Impl(Key) noexcept
-{}
-
 // ACCESSORS
+template <typename RandIt, typename ValueType, typename Reference, typename Pointer,
+          typename DifferenceType>
+inline const void* AnyRandomAccessIterator_Impl<RandIt, ValueType, Reference, Pointer, 
+    DifferenceType>::base() const noexcept
+{
+    return static_cast<const void*>(&d_it);
+}
+
+template <typename ValueType, typename Reference, typename Pointer, typename DifferenceType>
+inline const void* AnyRandomAccessIterator_Impl<void, ValueType, Reference, Pointer, 
+    DifferenceType>::base() const noexcept
+{
+    return nullptr;
+}
+
 template <typename RandIt, typename ValueType, typename Reference, typename Pointer,
           typename DifferenceType>
 inline bool AnyRandomAccessIterator_Impl<RandIt, ValueType, Reference, Pointer, 
@@ -321,6 +336,21 @@ inline typename AnyRandomAccessIterator_Impl<void, ValueType, Reference, Pointer
 }
 
 // MANIPULATORS
+template <typename RandIt, typename ValueType, typename Reference, typename Pointer,
+          typename DifferenceType>
+inline void* AnyRandomAccessIterator_Impl<RandIt, ValueType, Reference, Pointer, 
+    DifferenceType>::base() noexcept
+{
+    return static_cast<void*>(&d_it);
+}
+
+template <typename ValueType, typename Reference, typename Pointer, typename DifferenceType>
+inline void* AnyRandomAccessIterator_Impl<void, ValueType, Reference, Pointer, 
+    DifferenceType>::base() noexcept
+{
+    return nullptr;
+}
+
 template <typename RandIt, typename ValueType, typename Reference, typename Pointer,
           typename DifferenceType>
 inline AnyRandomAccessIterator_Impl<RandIt, ValueType, Reference, Pointer, DifferenceType>&

@@ -14,19 +14,20 @@ constexpr std::size_t DEFAULT_BUFFER_SIZE = 64ul;
 template <typename BaseType, std::size_t BufferSize = DEFAULT_BUFFER_SIZE>
 struct SmallBuffer;
 
-template <typename T>
-struct IsSmallBuffer : std::false_type {};
-
-template <typename T, std::size_t S>
-struct IsSmallBuffer<SmallBuffer<T, S>> : std::true_type {};
+template <typename BaseType, std::size_t BufferSize>
+void swap(SmallBuffer<BaseType, BufferSize>& lhs, 
+          SmallBuffer<BaseType, BufferSize>& rhs);
 
 template <typename BaseType, std::size_t BufferSize>
 struct SmallBuffer {
+    // TYPES
+    template <typename T> struct Key {};
+
     // CREATORS
     SmallBuffer(const SmallBuffer& rhs);
     SmallBuffer(SmallBuffer&& rhs);
-    template <typename T, typename = std::enable_if_t<!IsSmallBuffer<std::decay_t<T>>::value>>
-    SmallBuffer(T&& arg);
+    template <typename T, typename... Args>
+    SmallBuffer(Key<T>, Args&&... args);
     template <typename OtherBase, std::size_t OtherBufferSize,
               typename = std::enable_if_t<std::is_base_of_v<BaseType, OtherBase>>>
     SmallBuffer(const SmallBuffer<OtherBase, OtherBufferSize>& rhs);
@@ -38,6 +39,9 @@ struct SmallBuffer {
     // ACCESSORS
     BaseType& operator*() const noexcept;
     BaseType* operator->() const noexcept;
+
+    // MANIPULATORS
+    void swap(SmallBuffer& other);
 
 private:
     // PRIVATE TYPES
@@ -64,6 +68,13 @@ private:
 //      INLINE DEFINITIONS
 // ===========================================================================
 // FREE FUNCTIONS
+template <typename BaseType, std::size_t BufferSize>
+void swap(SmallBuffer<BaseType, BufferSize>& lhs,
+          SmallBuffer<BaseType, BufferSize>& rhs)
+{
+    lhs.swap(rhs);
+}
+
 template <typename T>
 constexpr std::byte* nextAlignedAddress(std::byte* address) noexcept
 {
@@ -128,8 +139,8 @@ void deleter(BaseType* obj)
 
 // CREATORS
 template <typename BaseType, std::size_t BufferSize>
-template <typename T, typename>
-inline SmallBuffer<BaseType, BufferSize>::SmallBuffer(T&& arg)
+template <typename T, typename... Args>
+inline SmallBuffer<BaseType, BufferSize>::SmallBuffer(Key<T>, Args&&... args)
     : d_cloner(&cloner<BaseType, std::decay_t<T>>)
     , d_mover(&mover<BaseType, std::decay_t<T>, false>)
     , d_deleter(&deleter<BaseType, std::decay_t<T>, false>)
@@ -144,13 +155,13 @@ inline SmallBuffer<BaseType, BufferSize>::SmallBuffer(T&& arg)
             reinterpret_cast<std::byte*>(storageAddress));
 
     if (BufferSize - (address - storageAddress) < sizeof(T)) {
-        d_type = new decayed_type(std::forward<T>(arg));
+        d_type = new decayed_type(std::forward<Args>(args)...);
         d_mover = &mover<BaseType, decayed_type, true>;
         d_deleter = &deleter<BaseType, decayed_type, true>;
         return;
     }
 
-    new ((void*)address) decayed_type(std::forward<T>(arg));
+    new ((void*)address) decayed_type(std::forward<Args>(args)...);
     d_type = reinterpret_cast<BaseType*>(address);
 }
 
@@ -217,6 +228,25 @@ template <typename BaseType, std::size_t BufferSize>
 inline BaseType* SmallBuffer<BaseType, BufferSize>::operator->() const noexcept
 {
     return d_type;
+}
+
+// MANIPULATORS
+template <typename BaseType, std::size_t BufferSize>
+inline void SmallBuffer<BaseType, BufferSize>::swap(SmallBuffer& other)
+{
+    auto tmp{std::move(*this)};
+    d_cloner = other.d_cloner;
+    d_mover = other.d_mover;
+    d_deleter = other.d_deleter;
+    d_type = d_mover(other.d_type, 
+        reinterpret_cast<std::byte*>(std::addressof(d_storage)), BufferSize);
+    
+    other.d_cloner = tmp.d_cloner;
+    other.d_mover = tmp.d_mover;
+    other.d_deleter = tmp.d_deleter;
+    other.d_type = other.d_mover(tmp.d_type,
+        reinterpret_cast<std::byte*>(std::addressof(other.d_storage)), 
+        BufferSize);
 }
 } // close namespace sample::detail
 

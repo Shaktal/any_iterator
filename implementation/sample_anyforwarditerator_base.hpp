@@ -25,6 +25,8 @@ struct AnyForwardIterator_Impl final : AnyForwardIterator_Base<ValueType, Refere
         noexcept(std::is_nothrow_copy_constructible_v<FwdIt>);
 
     // ACCESSORS
+    const void* base() const noexcept override;
+
     bool operator==(const AnyIterator_Base& rhs) const override;
     bool operator!=(const AnyIterator_Base& rhs) const override;
 
@@ -32,6 +34,8 @@ struct AnyForwardIterator_Impl final : AnyForwardIterator_Base<ValueType, Refere
     pointer operator->() const override;
 
     // MANIPULATORS
+    void* base() noexcept override;
+
     AnyForwardIterator_Impl& operator++() override;
 
 private:
@@ -48,12 +52,12 @@ struct AnyForwardIterator_Impl<void, ValueType, Reference, Pointer> final
     using reference = Reference;
     using pointer = Pointer;
 
-    struct Key {};
-
     // CREATORS
-    constexpr AnyForwardIterator_Impl(Key) noexcept;
+    constexpr AnyForwardIterator_Impl() noexcept = default;
 
     // ACCESSORS
+    const void* base() const noexcept override;
+
     bool operator==(const AnyIterator_Base& rhs) const override;
     bool operator!=(const AnyIterator_Base& rhs) const override;
 
@@ -61,6 +65,8 @@ struct AnyForwardIterator_Impl<void, ValueType, Reference, Pointer> final
     [[noreturn]] pointer operator->() const override;
 
     // MANIPULATORS
+    void* base() noexcept override;
+
     [[noreturn]] AnyForwardIterator_Impl& operator++() override;
 };
 
@@ -74,12 +80,21 @@ inline AnyForwardIterator_Impl<FwdIt, ValueType, Reference, Pointer>::AnyForward
     : d_it(it)
 {}
 
-template <typename ValueType, typename Reference, typename Pointer>
-inline constexpr AnyForwardIterator_Impl<void, ValueType, Reference, 
-    Pointer>::AnyForwardIterator_Impl(Key) noexcept
-{}
-
 // ACCESSORS
+template <typename FwdIt, typename ValueType, typename Reference, typename Pointer>
+inline const void* AnyForwardIterator_Impl<FwdIt, ValueType, Reference, Pointer>::base()
+    const noexcept
+{
+    return static_cast<const void*>(&d_it);
+}
+
+template <typename ValueType, typename Reference, typename Pointer>
+inline const void* AnyForwardIterator_Impl<void, ValueType, Reference, Pointer>::base() 
+    const noexcept
+{
+    return nullptr;
+}
+
 template <typename FwdIt, typename ValueType, typename Reference, typename Pointer>
 inline bool AnyForwardIterator_Impl<FwdIt, ValueType, Reference, Pointer>::operator==(
     const AnyIterator_Base& rhs) const
@@ -143,6 +158,20 @@ inline typename AnyForwardIterator_Impl<void, ValueType, Reference, Pointer>::po
 }
 
 // MANIPULATORS
+template <typename FwdIt, typename ValueType, typename Reference, typename Pointer>
+inline void* AnyForwardIterator_Impl<FwdIt, ValueType, Reference, Pointer>::base()
+    noexcept
+{
+    return static_cast<void*>(&d_it);
+}
+
+template <typename ValueType, typename Reference, typename Pointer>
+inline void* AnyForwardIterator_Impl<void, ValueType, Reference, Pointer>::base() 
+    noexcept
+{
+    return nullptr;
+}
+
 template <typename FwdIt, typename ValueType, typename Reference, typename Pointer>
 inline AnyForwardIterator_Impl<FwdIt, ValueType, Reference, Pointer>&
     AnyForwardIterator_Impl<FwdIt, ValueType, Reference, Pointer>::operator++()

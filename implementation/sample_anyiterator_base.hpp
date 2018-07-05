@@ -10,7 +10,12 @@ struct AnyIterator_Base {
     // CREATORS
     virtual ~AnyIterator_Base() = 0;
 
+    // ACCESSORS
+    virtual const void* base() const noexcept = 0;
+
     // MANIPULATORS
+    virtual void* base() noexcept = 0;
+
     virtual AnyIterator_Base& operator++() = 0;
 };
 

@@ -26,6 +26,8 @@ struct AnyBidirectionalIterator_Impl final : AnyBidirectionalIterator_Base<Value
         noexcept(std::is_nothrow_copy_constructible_v<BiDirIt>);
 
     // ACCESSORS
+    const void* base() const noexcept override;
+
     bool operator==(const AnyIterator_Base& rhs) const override;
     bool operator!=(const AnyIterator_Base& rhs) const override;
 
@@ -33,6 +35,8 @@ struct AnyBidirectionalIterator_Impl final : AnyBidirectionalIterator_Base<Value
     pointer operator->() const override;
 
     // MANIPULATORS
+    void* base() noexcept override;
+
     AnyBidirectionalIterator_Impl& operator++() override;
     AnyBidirectionalIterator_Impl& operator--() override;
 
@@ -50,12 +54,12 @@ struct AnyBidirectionalIterator_Impl<void, ValueType, Reference, Pointer> final
     using reference = Reference;
     using pointer = Pointer;
 
-    struct Key {};
-
     // CREATORS
-    constexpr AnyBidirectionalIterator_Impl(Key) noexcept;
+    constexpr AnyBidirectionalIterator_Impl() noexcept = default;
 
     // ACCESSORS
+    const void* base() const noexcept override;
+
     bool operator==(const AnyIterator_Base& rhs) const override;
     bool operator!=(const AnyIterator_Base& rhs) const override;
 
@@ -63,6 +67,8 @@ struct AnyBidirectionalIterator_Impl<void, ValueType, Reference, Pointer> final
     pointer operator->() const override;
 
     // MANIPULATORS
+    void* base() noexcept override;
+
     AnyBidirectionalIterator_Impl& operator++() override;
     AnyBidirectionalIterator_Impl& operator--() override;
 };
@@ -77,12 +83,21 @@ inline AnyBidirectionalIterator_Impl<FwdIt, ValueType, Reference, Pointer>::AnyB
     : d_it(it)
 {}
 
-template <typename ValueType, typename Reference, typename Pointer>
-inline constexpr AnyBidirectionalIterator_Impl<void, ValueType, Reference, 
-    Pointer>::AnyBidirectionalIterator_Impl(Key) noexcept
-{}
-
 // ACCESSORS
+template <typename FwdIt, typename ValueType, typename Reference, typename Pointer>
+inline const void* AnyBidirectionalIterator_Impl<FwdIt, ValueType, Reference, Pointer>::base()
+    const noexcept
+{
+    return static_cast<const void*>(&d_it);
+}
+
+template <typename ValueType, typename Reference, typename Pointer>
+inline const void* AnyBidirectionalIterator_Impl<void, ValueType, Reference, Pointer>::base()
+    const noexcept
+{
+    return nullptr;
+}
+
 template <typename FwdIt, typename ValueType, typename Reference, typename Pointer>
 inline bool AnyBidirectionalIterator_Impl<FwdIt, ValueType, Reference, Pointer>::operator==(
     const AnyIterator_Base& rhs) const
@@ -146,6 +161,20 @@ inline typename AnyBidirectionalIterator_Impl<void, ValueType, Reference, Pointe
 }
 
 // MANIPULATORS
+template <typename FwdIt, typename ValueType, typename Reference, typename Pointer>
+inline void* AnyBidirectionalIterator_Impl<FwdIt, ValueType, Reference, Pointer>::base()
+    noexcept
+{
+    return static_cast<void*>(&d_it);
+}
+
+template <typename ValueType, typename Reference, typename Pointer>
+inline void* AnyBidirectionalIterator_Impl<void, ValueType, Reference, Pointer>::base()
+    noexcept
+{
+    return nullptr;
+}
+
 template <typename BiDirIt, typename ValueType, typename Reference, typename Pointer>
 inline AnyBidirectionalIterator_Impl<BiDirIt, ValueType, Reference, Pointer>&
     AnyBidirectionalIterator_Impl<BiDirIt, ValueType, Reference, Pointer>::operator++()

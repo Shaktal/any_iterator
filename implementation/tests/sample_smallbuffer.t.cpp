@@ -54,7 +54,8 @@ TEST(SmallBuffer, constructible_with_small_base)
     test::TestBase test{1, 2, 3};
 
     // WHEN
-    sample::detail::SmallBuffer<test::TestBase, sizeof(test)> buffer(test);
+    using Buffer = sample::detail::SmallBuffer<test::TestBase, sizeof(test)>;
+    Buffer buffer(typename Buffer::template Key<decltype(test)>{}, test);
 
     // THEN
     using namespace ::testing;
@@ -68,8 +69,9 @@ TEST(SmallBuffer, constructible_with_large_base)
 
     // WHEN
     static_assert(sizeof(test) > sizeof(2 * sizeof(int)));
-    sample::detail::SmallBuffer<test::TestBase, 
-        sizeof(test) - (2u * sizeof(int))> buffer(test);
+    using Buffer = sample::detail::SmallBuffer<test::TestBase, 
+        sizeof(test) - (2u * sizeof(int))>;
+    Buffer buffer(typename Buffer::template Key<decltype(test)>{}, test);
 
     // THEN
     using namespace ::testing;
@@ -82,8 +84,9 @@ TEST(SmallBuffer, small_base_copyable)
     test::TestBase test{1, 2, 3};
 
     // WHEN
-    sample::detail::SmallBuffer<test::TestBase, sizeof(test)> buffer(test);
-    sample::detail::SmallBuffer<test::TestBase, sizeof(test)> buffer2(buffer);
+    using Buffer = sample::detail::SmallBuffer<test::TestBase, sizeof(test)>;
+    Buffer buffer(typename Buffer::template Key<decltype(test)>{}, test);
+    Buffer buffer2(buffer);
 
     // THEN
     using namespace ::testing;
@@ -96,8 +99,9 @@ TEST(SmallBuffer, small_base_movable)
     test::TestBase test{1, 2, 3};
 
     // WHEN
-    sample::detail::SmallBuffer<test::TestBase, sizeof(test)> buffer(test);
-    sample::detail::SmallBuffer<test::TestBase, sizeof(test)> buffer2(
+    using Buffer = sample::detail::SmallBuffer<test::TestBase, sizeof(test)>;
+    Buffer buffer(typename Buffer::template Key<decltype(test)>{}, test);
+    Buffer buffer2(
         std::move(buffer));
 
     // THEN
@@ -114,7 +118,8 @@ TEST(SmallBuffer, large_base_copyable)
     static_assert(sizeof(test) > sizeof(2 * sizeof(int)));
     using BufferType = sample::detail::SmallBuffer<test::TestBase, 
         sizeof(test) - (2u * sizeof(int))>;
-    BufferType buffer(test);
+    BufferType buffer(typename BufferType::template Key<decltype(test)>{}, 
+        test);
     BufferType buffer2(buffer);
 
     // THEN
@@ -131,7 +136,8 @@ TEST(SmallBuffer, large_base_movable)
     static_assert(sizeof(test) > sizeof(2 * sizeof(int)));
     using BufferType = sample::detail::SmallBuffer<test::TestBase, 
         sizeof(test) - (2u * sizeof(int))>;
-    BufferType buffer(test);
+    BufferType buffer(typename BufferType::template Key<decltype(test)>{},
+        test);
     BufferType buffer2(std::move(buffer));
 
     // THEN
@@ -145,7 +151,8 @@ TEST(SmallBuffer, constructible_with_small_derived)
     test::TestDerived test{1, 2, 3, 4, 5, 6};
 
     // WHEN
-    sample::detail::SmallBuffer<test::TestBase, sizeof(test)> buffer(test);
+    using Buffer = sample::detail::SmallBuffer<test::TestBase, sizeof(test)>;
+    Buffer buffer(typename Buffer::template Key<decltype(test)>{}, test);
 
     // THEN
     using namespace ::testing;
@@ -159,8 +166,9 @@ TEST(SmallBuffer, constructible_with_large_derived)
 
     // WHEN
     static_assert(sizeof(test) > sizeof(2 * sizeof(int)));
-    sample::detail::SmallBuffer<test::TestBase, 
-        sizeof(test) - (2u * sizeof(int))> buffer(test);
+    using Buffer = sample::detail::SmallBuffer<test::TestBase, 
+        sizeof(test) - (2u * sizeof(int))>;
+    Buffer buffer(typename Buffer::template Key<decltype(test)>{}, test);
 
     // THEN
     using namespace ::testing;
@@ -173,8 +181,9 @@ TEST(SmallBuffer, small_derived_copyable)
     test::TestDerived test{1, 2, 3, 4, 5, 6};
 
     // WHEN
-    sample::detail::SmallBuffer<test::TestBase, sizeof(test)> buffer(test);
-    sample::detail::SmallBuffer<test::TestBase, sizeof(test)> buffer2(buffer);
+    using Buffer = sample::detail::SmallBuffer<test::TestBase, sizeof(test)>;
+    Buffer buffer(typename Buffer::template Key<decltype(test)>{}, test);
+    Buffer buffer2(buffer);
 
     // THEN
     using namespace ::testing;
@@ -187,9 +196,9 @@ TEST(SmallBuffer, small_derived_movable)
     test::TestDerived test{1, 2, 3, 4, 5, 6};
 
     // WHEN
-    sample::detail::SmallBuffer<test::TestBase, sizeof(test)> buffer(test);
-    sample::detail::SmallBuffer<test::TestBase, sizeof(test)> buffer2(
-        std::move(buffer));
+    using Buffer = sample::detail::SmallBuffer<test::TestBase, sizeof(test)>;
+    Buffer buffer(typename Buffer::template Key<decltype(test)>{}, test);
+    Buffer buffer2(std::move(buffer));
 
     // THEN
     using namespace ::testing;
@@ -205,7 +214,7 @@ TEST(SmallBuffer, large_derived_copyable)
     static_assert(sizeof(test) > sizeof(2 * sizeof(int)));
     using BufferType = sample::detail::SmallBuffer<test::TestBase, 
         sizeof(test) - (2u * sizeof(int))>;
-    BufferType buffer(test);
+    BufferType buffer(typename BufferType::template Key<decltype(test)>{}, test);
     BufferType buffer2(buffer);
 
     // THEN
@@ -222,7 +231,7 @@ TEST(SmallBuffer, large_derived_movable)
     static_assert(sizeof(test) > sizeof(2 * sizeof(int)));
     using BufferType = sample::detail::SmallBuffer<test::TestBase, 
         sizeof(test) - (2u * sizeof(int))>;
-    BufferType buffer(test);
+    BufferType buffer(typename BufferType::template Key<decltype(test)>{}, test);
     BufferType buffer2(std::move(buffer));
 
     // THEN
