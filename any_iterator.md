@@ -248,8 +248,7 @@ namespace std {
     template <typename IteratorCategory, typename ValueType,
               typename Reference, typename Pointer, typename DifferenceType>
     any_iterator<IteratorCategory, ValueType, Reference,
-        Pointer, DifferenceType> operator+(DifferenceType offset,
-        const any_iterator<IteratorCategory, ValueType, Reference,
+        Pointer, DifferenceType> operator+(DifferenceType offset, const any_iterator<IteratorCategory, ValueType, Reference,
             Pointer, DifferenceType>& rhs);
 
     // Alias templates
@@ -257,27 +256,32 @@ namespace std {
               typename Reference = ValueType&, 
               typename Pointer = ValueType*, 
               typename DifferenceType = std::ptrdiff_t>
-    using any_input_iterator = any_iterator<std::input_iterator_tag, ValueType, Reference, Pointer, DifferenceType>;
+    using any_input_iterator = any_iterator<std::input_iterator_tag, ValueType, Reference, 
+        Pointer, DifferenceType>;
     template <typename ValueType,
               typename Reference = ValueType&, 
               typename Pointer = ValueType*, 
               typename DifferenceType = std::ptrdiff_t>
-    using any_output_iterator = any_iterator<std::output_iterator_tag, ValueType, Reference, Pointer, DifferenceType>;
+    using any_output_iterator = any_iterator<std::output_iterator_tag, ValueType, Reference, 
+        Pointer, DifferenceType>;
     template <typename ValueType,
               typename Reference = ValueType&, 
               typename Pointer = ValueType*, 
               typename DifferenceType = std::ptrdiff_t>
-    using any_forward_iterator = any_iterator<std::forward_iterator_tag, ValueType, Reference, Pointer, DifferenceType>;
+    using any_forward_iterator = any_iterator<std::forward_iterator_tag, ValueType, Reference, 
+        Pointer, DifferenceType>;
     template <typename ValueType,
               typename Reference = ValueType&, 
               typename Pointer = ValueType*, 
               typename DifferenceType = std::ptrdiff_t>
-    using any_bidirectional_iterator = any_iterator<std::bidirectional_iterator_tag, ValueType, Reference, Pointer, DifferenceType>;
+    using any_bidirectional_iterator = any_iterator<std::bidirectional_iterator_tag, ValueType, Reference, 
+        Pointer, DifferenceType>;
     template <typename ValueType,
               typename Reference = ValueType&, 
               typename Pointer = ValueType*, 
               typename DifferenceType = std::ptrdiff_t>
-    using any_random_access_iterator = any_iterator<std::random_access_iterator_tag, ValueType, Reference, Pointer, DifferenceType>;
+    using any_random_access_iterator = any_iterator<std::random_access_iterator_tag, ValueType, Reference, 
+        Pointer, DifferenceType>;
 }
 ```
 
