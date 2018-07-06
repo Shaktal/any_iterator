@@ -421,6 +421,15 @@ private:
     BufferType d_buffer;
 };
 
+template <typename It>
+any_iterator(It) -> any_iterator<
+    typename std::iterator_traits<It>::iterator_category,
+    typename std::iterator_traits<It>::value_type,
+    typename std::iterator_traits<It>::reference,
+    typename std::iterator_traits<It>::pointer,
+    typename std::iterator_traits<It>::difference_type
+>;
+
 template <typename IteratorCategory, typename ValueType,
           typename Reference, typename Pointer, typename DifferenceType>
 void swap(any_iterator<IteratorCategory, ValueType, Reference, 

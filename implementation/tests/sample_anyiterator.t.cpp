@@ -146,3 +146,18 @@ TEST(RandomAccessIteratorTest, convertible_to_bidirectional_iterator)
     using namespace ::testing;
     EXPECT_THAT(*weaker, Eq(1));
 }
+
+TEST(RandomAccessIterator, user_defined_deduction_guide_works)
+{
+    // GIVEN
+    std::vector<int> v{1, 2, 3};
+
+    // WHEN
+    sample::any_iterator it(begin(v));
+
+    // THEN
+    using namespace ::testing;
+    EXPECT_THAT(std::is_same_v<decltype(it),
+        sample::any_random_access_iterator<int, int&, int*>>,
+        Eq(true));
+}
