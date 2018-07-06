@@ -124,42 +124,21 @@ It is worth noting that as with any type-erased mechanism, allocation is often n
 
 Following the example given by removal of the `std::allocator_arg_t` constructors for `std::function` and their lack of inclusion in `std::any`, we have not included them for `std::any_iterator`.
 
+It is possible that polymorphic memory resources, i.e. `std::pmr::memory_resource`-derived classes could be useful in providing customizable allocation behaviour. However, as this was not used in design of `std::any` or retroactively applied to `std::function` it is not a part of this proposal.
+
 ### User Defined Types
 Whilst I anticipate that most use-cases will be satisfied with the existing `any_iterator` which is fully compatible with the STL iterator categories, there are projects which extend, or use different iterator categories. For these projects (such as Boost.Iterator), it would be a valid customization point for them to specialize the `std::any_iterator` class for their iterator category as it would be a UDT. 
 
 ### Alternatives
 The following are alternative solutions to this problem:
 
-- Instead of having a single `std::any_iterator` with member functions using SFINAE to remove operations that are not appropriate for each particular class of iterator, have 5 separate classes (`std::any_input_iterator`, `std::any_output_iterator`, `std::any_forward_iterator`, `std::any_bidirectional_iterator`, `std::any_random_access_iterator`).  
-  
-  This is an equally good solution (arguably better). The only thing that it would prevent would be code like the following:
-
+- Instead of having a single `std::any_iterator` with member functions using SFINAE to remove operations that are not appropriate for each particular class of iterator, have 5 separate classes (`std::any_input_iterator`, `std::any_output_iterator`, `std::any_forward_iterator`, `std::any_bidirectional_iterator`, `std::any_random_access_iterator`).
+- Provide a more generic type-erasure mechanism within the standard library that would make it trivial for users to write their own correct and performant `any_iterator`. Perhaps this would take the form of something like:  
   ```c++
-  template <typename IteratorCategory>
-  void foo(std::any_iterator<IteratorCategory, float> it) {
-      if constexpr (std::is_base_of_v<std::random_access_iterator_tag, IteratorCategory>) {
-          // Algorithm requiring fast random-access.
-      } else {
-          // Fall-back algorithm
-      }
-  }
-  ``` 
-
-  This would be odd anyway, as such an algorithm should be written:
-
-  ```c++
-  template <typename Iterator>
-    requires std::is_same_v<float, typename std::iterator_traits<Iterator>::value_type>
-  void foo(Iterator it) {
-      using iterator_category = typename std::iterator_traits<Iterator>::iterator_category;
-
-      if constexpr (std::is_base_of_v<std::random_access_iterator_tag, iterator_category>) {
-          // Algorithm requiring fast random-access
-      } else {
-          // Fall-back algorithm
-      }
-  }
+  std::opaque<Concept> obj(somethingModellingConcept);
   ```
+
+  Where `std::opaque` would deduce from `Concept` the necessary members. This would require extensive changes to the core language and would provide a much more generic and powerful tool than proposed here. It may not even be possible.
 
 ## Prior Art
 Analogous classes exist in various other places within the C++ community:
@@ -171,9 +150,9 @@ Analogous classes exist in various other places within the C++ community:
 - There is an ACCU article from July 2000 detailing how to create a simple `any_iterator` class.
 
 ## Impact on the standard
-This proposal is a pure library extension. It requires additions to be made to the standard library header `<iterator>`.
+This proposal is a pure library extension. It requires addition of a new standard library header `<any_iterator>`, no modifications to other headers are required.
 
-## Interaction with Concepts
+### Interaction with Ranges
 It is worth noting at this point that both Boost.Range and ranges v3 have an `any_range` class, which acts as a type-erased range adapter. It is likely that such a class would be added to the ISO C++ standard at a later date, in this event, having a pre-existing `any_iterator` would ease the burden of implementation on standard library vendors and ease burden of specification on LEWG.
 
 ## Wording
@@ -211,7 +190,7 @@ namespace std {
         any_iterator(any_iterator<OtherCategory, OtherValue, OtherReference, OtherPointer, OtherDifferenceType>&& other);
         ~any_iterator();
 
-        // ACCESSORS
+        // OBSERVERS
         void* base() const noexcept;
 
         reference operator*() const;
@@ -219,8 +198,12 @@ namespace std {
             // SFINAE'd out unless InputIterator
 
         reference operator[](difference_type offset) const;
+        any_iterator operator+(difference_type offset) const;
+        any_iterator operator-(difference_type offset) const;
+        difference_type operator-(const any_iterator& rhs) const;
             // SFINAE'd out unless RandomAccessIterator
 
+        // COMPARISON OPERATORS
         bool operator==(const any_iterator& rhs) const;
         bool operator!=(const any_iterator& rhs) const;
             // SFINAE'd out unless InputIterator
@@ -229,12 +212,9 @@ namespace std {
         bool operator>(const any_iterator& rhs) const;
         bool operator<=(const any_iterator& rhs) const;
         bool operator>=(const any_iterator& rhs) const;
-        any_iterator operator+(difference_type offset) const;
-        any_iterator operator-(difference_type offset) const;
-        difference_type operator-(const any_iterator& rhs) const;
             // SFINAE'd out unless RandomAccessIterator
 
-        // MANIPULATORS
+        // MODIFIERS
         void swap(any_iterator& other);
 
         any_iterator& operator++();
@@ -325,6 +305,21 @@ namespace std {
 &nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and upon being advanced by `offset` shall be dereferencable; otherwise the behaviour is undefined.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `random_access_iterator_tag`.
 
+`any_iterator operator+(difference_type offset) const`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Returns an `any_iterator` containing the result of `UnderlyingIterator(*this) + offset`.   
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and upon being advanced by `offset` shall be valid; otherwise the behaviour is undefined.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `random_access_iterator_tag`.
+
+`any_iterator operator-(difference_type offset) const`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Returns an `any_iterator` containing the result of `UnderlyingIterator(*this) - offset`.   
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and upon retreating by `offset` shall be valid; otherwise the behaviour is undefined.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `random_access_iterator_tag`.
+
+`difference_type operator-(const any_iterator& rhs) const`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Returns the distance between `*this` and `rhs` as computed by using `operator-` on their underlying iterators.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The underlying iterators of `*this` and `rhs` must be of the same type and it must be valid to call `operator-` with both as arguments.    
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `random_access_iterator_tag`.
+
 ##### Class template `any_iterator` comparison operators [any_iterator.compare]
 `bool operator==(const any_iterator& rhs) const;`  
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Compares the underlying iterators of `*this` and `rhs` for equality.    
@@ -356,4 +351,46 @@ namespace std {
 `bool operator>=(const any_iterator& rhs) const;`  
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Compares the underlying iterators of `*this` and `rhs` using `operator>=`.    
 &nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and the underlying iterators of `*this` and `rhs` should have the same type and be greater-than and equality comparable.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `random_access_iterator_tag`.
+
+##### Class template `any_iterator` modifiers [any_iterator.modify]
+`void swap(any_iterator& other)`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Swaps the underlying iterators of `*this` and `other`.
+
+`any_iterator& operator++()`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Increments the underlying iterator of `*this`.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The underlying iterator should be incrementable.
+
+`any_iterator& operator*()`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: No-op, returns a reference to `*this`.    
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `output_iterator_tag`.
+
+`any_iterator& operator=(value_type value)`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Assigns `value` to the underlying iterator as if by `*UnderlyingIterator(*this) = std::move(value)`.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The underlying iterator shall be valid and assignable.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `output_iterator_tag`.
+
+`any_iterator operator++(int)`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Makes a copy of `*this`, increments `*this` then returns the copy.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The underlying iterator shall be incrementable.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `forward_iterator_tag`.
+
+`any_iterator& operator--()`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Decrements the underlying iterator of `*this`.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The underlying iterator shall be decrementable.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `bidirectional_iterator_tag`.
+
+`any_iterator operator--(int)`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Makes a copy of `*this`, decrements `*this` then returns the copy.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The underlying iterator shall be decrementable.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `bidirectional_iterator_tag`.
+
+`any_iterator& operator+=(difference_type offset)`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Advances the underlying iterator of `*this` by `offset` by calling `operator+=`.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: It is valid to advance the underlying iterator of `*this` by `offset`.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `random_access_iterator_tag`.
+
+`any_iterator& operator-=(difference_type offset)`
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Retreats the underlying iterator of `*this` by `offset` by calling `operator-=`.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: It is valid to retreat the underlying iterator of `*this` by `offset`.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `random_access_iterator_tag`.
