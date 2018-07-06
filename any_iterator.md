@@ -10,7 +10,7 @@ This paper proposes adding the template class `std::any_iterator` - a type-erase
 ## Table of Concepts
 - Motivation  
   - Example Usage
-  - Allocation
+  - Memory Allocation
   - User-defined Types
   - Alternatives
 - Prior Art
@@ -119,7 +119,7 @@ Here we have also made use of the alias templates which are also proposed here:
 
 _Note that these are formally defined in the wording section below._
 
-### Allocation
+### Memory Allocation
 It is worth noting that as with any type-erased mechanism, allocation is often needed (the existance of a small-buffer optimization can help to mitigate this, but never remove it).
 
 Following the example given by removal of the `std::allocator_arg_t` constructors for `std::function` and their lack of inclusion in `std::any`, we have not included them for `std::any_iterator`.
