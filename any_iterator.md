@@ -248,8 +248,8 @@ namespace std {
     template <typename IteratorCategory, typename ValueType,
               typename Reference, typename Pointer, typename DifferenceType>
     any_iterator<IteratorCategory, ValueType, Reference,
-        Pointer, DifferenceType> operator+(DifferenceType offset, const any_iterator<IteratorCategory, ValueType, Reference,
-            Pointer, DifferenceType>& rhs);
+        Pointer, DifferenceType> operator+(DifferenceType offset, const any_iterator<IteratorCategory,
+            ValueType, Reference, Pointer, DifferenceType>& rhs);
 
     // Alias templates
     template <typename ValueType,
