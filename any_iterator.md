@@ -8,16 +8,16 @@ __Target__: Library Evolution Working Group (LEWG)
 This paper proposes adding the template class `std::any_iterator` - a type-erased iterator which can be used where physical encapsulation is desired but the generality of iterators is beneficial. It also proposes the helper alias templates: `std::any_input_iterator`, `std::any_output_iterator`, `std::any_forward_iterator`, `std::any_bidirectional_iterator` and `std::any_random_access_iterator`.
 
 ## Table of Concepts
-- Motivation  
-  - Example Usage
-  - Memory Allocation
-  - User-defined Types
-  - Alternatives
-- Prior Art
-- Impact on the standard
-- Wording
-  - Synopsis
-  - Specification
+- [Motivation](#Motivation)
+  - [Example Usage](#Example-Usage)
+  - [Memory Allocation](#Memory-Allocation)
+  - [User-defined Types](#User-defined-Types)
+  - [Alternatives](#Alternatives)
+- [Prior Art](#Prior-Art)
+- [Impact on the standard](#Impact-on-the-standard)
+- [Wording](#Wording)
+  - [Synopsis](#Synopsis)
+  - [Specification](#Specification)
 
 ## Motivation
 Iterators (and soon, ranges also) are a powerful and generic abstraction idiom in C++. They allow library and application developers to write their functions restricted only on the properties that they actually need (traversal requirements, dereference type, etc.).
@@ -126,7 +126,7 @@ Following the example given by removal of the `std::allocator_arg_t` constructor
 
 It is possible that polymorphic memory resources, i.e. `std::pmr::memory_resource`-derived classes could be useful in providing customizable allocation behaviour. However, as this was neither used in design of `std::any` nor retroactively applied to `std::function` it is not a part of this proposal.
 
-### User Defined Types
+### User-defined Types
 Whilst I anticipate that most use-cases will be satisfied with the existing `any_iterator` which is fully compatible with the STL iterator categories, there are projects which extend, or use different iterator categories. For these projects (such as Boost.Iterator), it would be a valid customization point for them to specialize the `std::any_iterator` class for their iterator category as it would be a UDT. 
 
 ### Alternatives
