@@ -407,7 +407,7 @@ namespace std {
 &nbsp;&nbsp;&nbsp;&nbsp;_Requires_: It is valid to advance the underlying iterator of `*this` by `offset`.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `random_access_iterator_tag`.
 
-`any_iterator& operator-=(difference_type offset)`
+`any_iterator& operator-=(difference_type offset)`  
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Retreats the underlying iterator of `*this` by `offset` by calling `operator-=`.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Requires_: It is valid to retreat the underlying iterator of `*this` by `offset`.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `random_access_iterator_tag`.
