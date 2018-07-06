@@ -8,16 +8,16 @@ __Target__: Library Evolution Working Group (LEWG)
 This paper proposes adding the template class `std::any_iterator` - a type-erased iterator which can be used where physical encapsulation is desired but the generality of iterators is beneficial. It also proposes the helper alias templates: `std::any_input_iterator`, `std::any_output_iterator`, `std::any_forward_iterator`, `std::any_bidirectional_iterator` and `std::any_random_access_iterator`.
 
 ## Table of Concepts
-- [Motivation](#Motivation)
-  - [Example Usage](#Example-Usage)
-  - [Memory Allocation](#Memory-Allocation)
-  - [User-defined Types](#User-defined-Types)
-  - [Alternatives](#Alternatives)
-- [Prior Art](#Prior-Art)
-- [Impact on the standard](#Impact-on-the-standard)
-- [Wording](#Wording)
-  - [Synopsis](#Synopsis)
-  - [Specification](#Specification)
+- [Motivation](#motivation)
+  - [Example Usage](#example-usage)
+  - [Memory Allocation](#memory-allocation)
+  - [User-defined Types](#user-defined-types)
+  - [Alternatives](#alternatives)
+- [Prior Art](#prior-art)
+- [Impact on the standard](#impact-on-the-standard)
+- [Wording](#wording)
+  - [Synopsis](#synopsis)
+  - [Specification](#specification)
 
 ## Motivation
 Iterators (and soon, ranges also) are a powerful and generic abstraction idiom in C++. They allow library and application developers to write their functions restricted only on the properties that they actually need (traversal requirements, dereference type, etc.).
