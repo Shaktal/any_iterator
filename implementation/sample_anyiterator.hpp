@@ -8,7 +8,7 @@
 #include <sample_anybidirectionaliterator_base.hpp>
 #include <sample_anyrandomaccessiterator_base.hpp>
 #include <sample_smallbuffer.hpp>
-#include <sample_compatibleiterators.hpp>
+#include <sample_util.hpp>
 
 #include <cstddef>
 #include <iterator>
@@ -111,51 +111,21 @@ struct any_iterator {
         // Throws if allocation was required and failed, or if the move
         // constructor of `It` throws.
 
-    template <typename OtherCategory, typename OtherValue, 
-              typename OtherReference, typename OtherPointer,
-              typename OtherDifferenceType, typename = std::enable_if_t<
-                detail::compatible_iterators_v<iterator_category, OtherCategory,
-                    value_type, OtherValue, reference, OtherReference,
-                    pointer, OtherPointer, difference_type, OtherDifferenceType>>>
-    any_iterator(const any_iterator<OtherCategory, OtherValue, OtherReference,
-                    OtherPointer, OtherDifferenceType>& other);
-        // Construct an `any_iterator` from another type of `any_iterator`.
+    template <typename OtherAnyIterator,
+              typename = std::enable_if_t<detail::is_compatible_iterator_v<
+                any_iterator, OtherAnyIterator>>>
+    any_iterator(OtherAnyIterator&& other_any_iterator);
+        // Construct an `any_iterator` from the underlying iterator of 
+        // `other_any_iterator`.
         //
-        // Only participates in the overload set if the following conditions
-        // are met:
-        //   o `OtherCategory` is derived from `iterator_category`.
-        //   o `OtherValue` is convertible to `value_type`.
-        //   o `OtherReference` is convertible to `reference`.
-        //   o `OtherPointer` is convertible to `pointer`.
-        //   o All values in `OtherDifferenceType` can be expressed in
-        //     `difference_type`.
+        // Only participates in the overload set if `OtherAnyIterator` 
+        // is a compatible iterator of this `any_iterator`, i.e. it 
+        // is also an `any_iterator`, with the `iterator_category` 
+        // derived from `iterator_category` and all other template
+        // parameters the same.
         //
-        // Throws if allocation was required and failed, or if the copy 
-        // constructor of the iterator-type containe within `other` 
-        // throws.
-
-        template <typename OtherCategory, typename OtherValue, 
-              typename OtherReference, typename OtherPointer,
-              typename OtherDifferenceType, typename = std::enable_if_t<
-                detail::compatible_iterators_v<iterator_category, OtherCategory,
-                    value_type, OtherValue, reference, OtherReference,
-                    pointer, OtherPointer, difference_type, OtherDifferenceType>>>
-    any_iterator(any_iterator<OtherCategory, OtherValue, OtherReference,
-                    OtherPointer, OtherDifferenceType>&& other);
-        // Move-construct an `any_iterator` from another type of `any_iterator`.
-        //
-        // Only participates in the overload set if the following conditions
-        // are met:
-        //   o `OtherCategory` is derived from `iterator_category`.
-        //   o `OtherValue` is convertible to `value_type`.
-        //   o `OtherReference` is convertible to `reference`.
-        //   o `OtherPointer` is convertible to `pointer`.
-        //   o All values in `OtherDifferenceType` can be expressed in
-        //     `difference_type`.
-        //
-        // Throws if allocation was required and failed, or if the move 
-        // constructor of the iterator-type containe within `other` 
-        // throws.
+        // Throws if allocation was required and failed, or if the 
+        // relevant constructor of the underlying iterator throws.
 
     ~any_iterator();
         // Destroys the `any_iterator`, releasing any memory that was allocated
@@ -417,6 +387,13 @@ struct any_iterator {
         // cannot be advanced by `offset`.
 
 private:
+    // FRIENDS
+    template <typename OtherCategory, typename OtherValue,
+        typename OtherReference, typename OtherPointer,
+        typename OtherDifferenceType>
+    friend class any_iterator;
+
+private:
     // PRIVATE TYPES
     using BufferType = detail::SmallBuffer<detail::AnyIterator_Base>;
     template <typename T>
@@ -504,33 +481,12 @@ inline any_iterator<IteratorCategory, ValueType, Reference, Pointer,
 
 template <typename IteratorCategory, typename ValueType,
           typename Reference, typename Pointer, typename DifferenceType>
-template <typename OtherCategory, typename OtherValue, 
-            typename OtherReference, typename OtherPointer,
-            typename OtherDifferenceType, typename>
+template <typename OtherAnyIterator, typename>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
-    DifferenceType>::any_iterator(const any_iterator<OtherCategory, OtherValue, 
-        OtherReference, OtherPointer, OtherDifferenceType>&)
-    : any_iterator(IteratorCategory{})
-{
-    // TODO: This is problematic - this will construct iterator implementations
-    // which are wrong inside of the buffer using the default copier.
-    assert(false && "Not implemented");
-}
-
-template <typename IteratorCategory, typename ValueType,
-          typename Reference, typename Pointer, typename DifferenceType>
-template <typename OtherCategory, typename OtherValue, 
-            typename OtherReference, typename OtherPointer,
-            typename OtherDifferenceType, typename>
-inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
-    DifferenceType>::any_iterator(any_iterator<OtherCategory, OtherValue, 
-        OtherReference, OtherPointer, OtherDifferenceType>&&)
-    : any_iterator(IteratorCategory{})
-{
-    // TODO: This is problematic - this will construct iterator implementations
-    // which are wrong inside of the buffer using the default copier.
-    assert(false && "Not implemented");
-}
+    DifferenceType>::any_iterator(OtherAnyIterator&& other_any_iterator)
+    : any_iterator(detail::forward_like<OtherAnyIterator>(
+        other_any_iterator.d_buffer))
+{}
 
 template <typename IteratorCategory, typename ValueType,
           typename Reference, typename Pointer, typename DifferenceType>
