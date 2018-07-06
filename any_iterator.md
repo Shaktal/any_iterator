@@ -236,6 +236,15 @@ namespace std {
         BufferType d_buffer; // Exposition Only
     };
 
+    template <typename It>
+    any_iterator(It) -> any_iterator<
+        typename iterator_traits<It>::iterator_category,
+        typename iterator_traits<It>::value_type,
+        typename iterator_traits<It>::reference,
+        typename iterator_traits<It>::pointer,
+        typename iterator_traits<It>::difference_type
+    >;
+
     // Free functions
     template <typename IteratorCategory, typename ValueType,
               typename Reference, typename Pointer, typename DifferenceType>
