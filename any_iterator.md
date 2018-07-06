@@ -149,6 +149,8 @@ Analogous classes exist in various other places within the C++ community:
 - As an example of how to use the `dyno` library, there is an `any_iterator` class.
 - There is an ACCU article from July 2000 detailing how to create a simple `any_iterator` class.
 
+I have also been informally told that analogous classes exist in various libraries within enterprises where C++ is extensively used.
+
 ## Impact on the standard
 This proposal is a pure library extension. It requires addition of a new standard library header `<any_iterator>`, no modifications to other headers are required.
 
@@ -156,7 +158,7 @@ This proposal is a pure library extension. It requires addition of a new standar
 It is worth noting at this point that both Boost.Range and ranges v3 have an `any_range` class, which acts as a type-erased range adapter. It is likely that such a class would be added to the ISO C++ standard at a later date, in this event, having a pre-existing `any_iterator` would ease the burden of implementation on standard library vendors and ease burden of specification on LEWG.
 
 ## Wording
-### Synopsis
+### Synopsis of `<any_iterator>` header
 ```c++
 namespace std {
     template <typename IteratorCategory, typename ValueType,
@@ -234,6 +236,21 @@ namespace std {
         BufferType d_buffer; // Exposition Only
     };
 
+    // Free functions
+    template <typename IteratorCategory, typename ValueType,
+              typename Reference, typename Pointer, typename DifferenceType>
+    void swap(
+        any_iterator<IteratorCategory, ValueType, Reference,
+            Pointer, DifferenceType>& lhs,
+        any_iterator<IteratorCategory, ValueType, Reference,
+            Pointer, DifferenceType>& rhs);
+
+    template <typename IteratorCategory, typename ValueType,
+              typename Reference, typename Pointer, typename DifferenceType>
+    any_iterator<IteratorCategory, ValueType, Reference,
+        Pointer, DifferenceType> operator+(DifferenceType offset,
+        const any_iterator<IteratorCategory, ValueType, Reference,
+            Pointer, DifferenceType>& rhs);
 
     // Alias templates
     template <typename ValueType,
