@@ -180,14 +180,9 @@ namespace std {
         template <typename It>
         any_iterator(It it);
 
-        template <typename OtherCategory, typename OtherValue, 
-                typename OtherReference, typename OtherPointer,
-                typename OtherDifferenceType>
-        any_iterator(const any_iterator<OtherCategory, OtherValue, OtherReference, OtherPointer, OtherDifferenceType>& other);
-        template <typename OtherCategory, typename OtherValue, 
-                typename OtherReference, typename OtherPointer,
-                typename OtherDifferenceType>
-        any_iterator(any_iterator<OtherCategory, OtherValue, OtherReference, OtherPointer, OtherDifferenceType>&& other);
+        template <typename OtherAnyIterator>
+        any_iterator(OtherAnyIterator&& other_any_iterator);
+
         ~any_iterator();
 
         // OBSERVERS
@@ -284,7 +279,12 @@ namespace std {
 
 `template <typename It> any_iterator(It it)`  
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Constructs an `any_iterator` with a type-erased underlying iterator of type `It` move-constructed from `it`.   
-&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: `typename std::iterator_traits<It>::iterator_category` must be derived from `iterator_category`.
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This constructor only participates in overload resolution if `It` satisfies the appropriate concept form of `iterator_category`. For instance, if `iterator_category` is `output_iterator_tag` then `It` must satisfy the `OutputIterator` concept for this constructor to participate in overload resolution.
+
+`template <typename OtherAnyIterator>`  
+`any_iterator(OtherAnyIterator&& other_any_iterator)`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Constructs an `any_iterator` from `other` such that the underlying iterator is formed by construction from forwarding the underlying iterator of `other` using the value category of `other_any_iterator`.     
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This constructor shall only participate in overload resolution if `OtherAnyIterator` is an `any_iterator` whose `iterator_category` is a derived-class of `iterator_category` and all other template parameters are the same.
 
 ##### Class template `any_iterator` observers [any_iterator.observers]
 `void* base() const noexcept`  
