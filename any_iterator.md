@@ -5,9 +5,9 @@ __Date__: 2nd July 2018
 __Target__: Library Evolution Working Group (LEWG)
 
 ## Abstract
-This paper proposes adding the template class `std::any_iterator` - a type-erased iterator which can be used where physical encapsulation is desired but the generality of iterators is beneficial. It also proposes the helper alias templates: `std::any_input_iterator`, `std::any_output_iterator`, `std::any_forward_iterator`, `std::any_bidirectional_iterator` and `std::any_random_access_iterator`.
+This paper proposes adding the class template `std::any_iterator` - a type-erased iterator which can be used where physical encapsulation is desired but the generality of iterators is beneficial. It also proposes the helper alias templates: `std::any_input_iterator`, `std::any_output_iterator`, `std::any_forward_iterator`, `std::any_bidirectional_iterator` and `std::any_random_access_iterator`.
 
-## Table of Concepts
+## Table of Contents
 - [Motivation](#motivation)
   - [Example Usage](#example-usage)
   - [Memory Allocation](#memory-allocation)
@@ -62,14 +62,14 @@ std::copy(
 
 This is, of course, unnecessarily restrictive on the caller of this algorithm; the implementation of `getSomeObjects` doesn't use the fact that `std::vector` is contiguous, they are just interested in having some output range in which to put `Object` objects. It also requires that I have a contiguous vector of `std::string` objects to call it. If I have a range of valid `std::string_view` objects, I have to jump through hoops to use this function, and impose a potentially significant performance penalty.
 
-On the other hand, we are told when designing enterprise-scale software to employ physical design principals. Having to declare the majority of our algorithms as template functions breaks physical encapsulation and can result in complaints of code-bloat, ugliness and increased compilation-time. Thus we are often reduced to writing code for the most common case; using concrete types and being overly restrictive.
+On the other hand, we are told when designing enterprise-scale software to employ physical design principals. Having to declare the majority of our algorithms as function templates breaks physical encapsulation and can result in complaints of code-bloat, ugliness and increased compilation-time. Thus we are often reduced to writing code for the most common case; using concrete types and being overly restrictive.
 
 Generic programming techniques (such as accepting arbitrary iterator types through templates) also prevent various ubiquitous OOP techniques such as inheritance and run-time polymorphism, again making some developers reluctant to adopt them.
 
-Using type-erasure is the idiomatic way to solve this problem in C++, and we have several existing vocabulary types for solving other problem classes (`std::function`, `std::any`). In this proposal, we consider the addition of a `std::any_iterator` template class that solves this problem for the case of iterators.
+Using type-erasure is the idiomatic way to solve this problem in C++, and we have several existing vocabulary types for solving other problem classes (`std::function`, `std::any`). In this proposal, we consider the addition of a `std::any_iterator` class template that solves this problem for the case of iterators.
 
 ### Example Usage
-Consider the previous example code. With the existance of a `std::any_iterator` template class, this would instead look something like:
+Consider the previous example code. With the existence of a `std::any_iterator` class template, this would instead look something like:
 
 ```c++
 // application_algorithm.h
@@ -120,7 +120,7 @@ Here we have also made use of the alias templates which are also proposed here:
 _Note that these are formally defined in the wording section below._
 
 ### Memory Allocation
-It is worth noting that as with any type-erased mechanism, allocation is often needed (the existance of a small-buffer optimization can help to mitigate this, but never remove it).
+It is worth noting that as with any type-erased mechanism, allocation is often needed (the existence of a small-buffer optimization can help to mitigate this, but never remove it).
 
 Following the example given by removal of the `std::allocator_arg_t` constructors for `std::function` and their lack of inclusion in `std::any`, we have not included them for `std::any_iterator`.
 
@@ -322,12 +322,12 @@ namespace std {
 
 `reference operator*() const;`  
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Returns a `reference` to the result of dereferencing the underlying iterator.  
-&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and contain a dereferencible underlying iterator. Otherwise the behaviour is undefined.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and contain a dereferencable underlying iterator. Otherwise the behaviour is undefined.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `input_iterator_tag`.
 
 `/*unspecified*/ operator->() const;`  
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Returns an unspecified object which implements `operator->` such that the end result is as if the user had called `operator->` directly on the underlying iterator.  
-&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and contain a dereferencible underlying iterator. Otherwise the behaviour is undefined.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and contain a dereferencable underlying iterator. Otherwise the behaviour is undefined.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `input_iterator_tag`.
 
 `reference operator[](difference_type offset) const;`  
