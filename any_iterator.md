@@ -69,7 +69,7 @@ Generic programming techniques (such as accepting arbitrary iterator types throu
 Using type-erasure is the idiomatic way to solve this problem in C++, and we have several existing vocabulary types for solving other problem classes (`std::function`, `std::any`). In this proposal, we consider the addition of a `std::any_iterator` class template that solves this problem for the case of iterators.
 
 ### Example Usage
-Consider the previous example code. With the existance of a `std::any_iterator` class template, this would instead look something like:
+Consider the previous example code. With the existence of a `std::any_iterator` class template, this would instead look something like:
 
 ```c++
 // application_algorithm.h
@@ -120,7 +120,7 @@ Here we have also made use of the alias templates which are also proposed here:
 _Note that these are formally defined in the wording section below._
 
 ### Memory Allocation
-It is worth noting that as with any type-erased mechanism, allocation is often needed (the existance of a small-buffer optimization can help to mitigate this, but never remove it).
+It is worth noting that as with any type-erased mechanism, allocation is often needed (the existence of a small-buffer optimization can help to mitigate this, but never remove it).
 
 Following the example given by removal of the `std::allocator_arg_t` constructors for `std::function` and their lack of inclusion in `std::any`, we have not included them for `std::any_iterator`.
 
@@ -322,12 +322,12 @@ namespace std {
 
 `reference operator*() const;`  
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Returns a `reference` to the result of dereferencing the underlying iterator.  
-&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and contain a dereferencible underlying iterator. Otherwise the behaviour is undefined.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and contain a dereferencable underlying iterator. Otherwise the behaviour is undefined.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `input_iterator_tag`.
 
 `/*unspecified*/ operator->() const;`  
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Returns an unspecified object which implements `operator->` such that the end result is as if the user had called `operator->` directly on the underlying iterator.  
-&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and contain a dereferencible underlying iterator. Otherwise the behaviour is undefined.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and contain a dereferencable underlying iterator. Otherwise the behaviour is undefined.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `input_iterator_tag`.
 
 `reference operator[](difference_type offset) const;`  
