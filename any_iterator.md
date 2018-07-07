@@ -5,7 +5,7 @@ __Date__: 2nd July 2018
 __Target__: Library Evolution Working Group (LEWG)
 
 ## Abstract
-This paper proposes adding the template class `std::any_iterator` - a type-erased iterator which can be used where physical encapsulation is desired but the generality of iterators is beneficial. It also proposes the helper alias templates: `std::any_input_iterator`, `std::any_output_iterator`, `std::any_forward_iterator`, `std::any_bidirectional_iterator` and `std::any_random_access_iterator`.
+This paper proposes adding the class template `std::any_iterator` - a type-erased iterator which can be used where physical encapsulation is desired but the generality of iterators is beneficial. It also proposes the helper alias templates: `std::any_input_iterator`, `std::any_output_iterator`, `std::any_forward_iterator`, `std::any_bidirectional_iterator` and `std::any_random_access_iterator`.
 
 ## Table of Concepts
 - [Motivation](#motivation)
@@ -66,10 +66,10 @@ On the other hand, we are told when designing enterprise-scale software to emplo
 
 Generic programming techniques (such as accepting arbitrary iterator types through templates) also prevent various ubiquitous OOP techniques such as inheritance and run-time polymorphism, again making some developers reluctant to adopt them.
 
-Using type-erasure is the idiomatic way to solve this problem in C++, and we have several existing vocabulary types for solving other problem classes (`std::function`, `std::any`). In this proposal, we consider the addition of a `std::any_iterator` template class that solves this problem for the case of iterators.
+Using type-erasure is the idiomatic way to solve this problem in C++, and we have several existing vocabulary types for solving other problem classes (`std::function`, `std::any`). In this proposal, we consider the addition of a `std::any_iterator` class template that solves this problem for the case of iterators.
 
 ### Example Usage
-Consider the previous example code. With the existance of a `std::any_iterator` template class, this would instead look something like:
+Consider the previous example code. With the existance of a `std::any_iterator` class template, this would instead look something like:
 
 ```c++
 // application_algorithm.h
