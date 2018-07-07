@@ -62,7 +62,7 @@ std::copy(
 
 This is, of course, unnecessarily restrictive on the caller of this algorithm; the implementation of `getSomeObjects` doesn't use the fact that `std::vector` is contiguous, they are just interested in having some output range in which to put `Object` objects. It also requires that I have a contiguous vector of `std::string` objects to call it. If I have a range of valid `std::string_view` objects, I have to jump through hoops to use this function, and impose a potentially significant performance penalty.
 
-On the other hand, we are told when designing enterprise-scale software to employ physical design principals. Having to declare the majority of our algorithms as template functions breaks physical encapsulation and can result in complaints of code-bloat, ugliness and increased compilation-time. Thus we are often reduced to writing code for the most common case; using concrete types and being overly restrictive.
+On the other hand, we are told when designing enterprise-scale software to employ physical design principals. Having to declare the majority of our algorithms as function templates breaks physical encapsulation and can result in complaints of code-bloat, ugliness and increased compilation-time. Thus we are often reduced to writing code for the most common case; using concrete types and being overly restrictive.
 
 Generic programming techniques (such as accepting arbitrary iterator types through templates) also prevent various ubiquitous OOP techniques such as inheritance and run-time polymorphism, again making some developers reluctant to adopt them.
 
