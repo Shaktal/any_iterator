@@ -316,7 +316,7 @@ namespace std {
 
 `template <typename It> any_iterator(It it)`  
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Constructs an `any_iterator` with a type-erased underlying iterator of type `It` move-constructed from `it`.   
-&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This constructor only participates in overload resolution if `It` satisfies the appropriate concept form of `iterator_category`. For instance, if `iterator_category` is `output_iterator_tag` then `It` must satisfy the `OutputIterator` concept for this constructor to participate in overload resolution.
+&nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This constructor only participates in overload resolution if the conditions for the `OtherAnyIterator` constructor are not met and `It` satisfies the appropriate concept form of `iterator_category`. For instance, if `iterator_category` is `output_iterator_tag` then `It` must satisfy the `OutputIterator` concept for this constructor to participate in overload resolution.
 
 `template <typename OtherAnyIterator>`  
 `any_iterator(OtherAnyIterator&& other_any_iterator)`  
