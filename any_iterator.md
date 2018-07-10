@@ -373,7 +373,7 @@ namespace std {
 &nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and the underlying iterators of `*this` and `rhs` should have the same type and be greater-than comparable.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `random_access_iterator_tag`.
 
-`bool operator<=(const any_iterator& rhs) const;`
+`bool operator<=(const any_iterator& rhs) const;`  
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Compares the underlying iterators of `*this` and `rhs` using `operator<=`.    
 &nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and the underlying iterators of `*this` and `rhs` should have the same type and be less-than and equality comparable.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `random_access_iterator_tag`.
