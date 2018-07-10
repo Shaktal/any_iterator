@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <new>
-#include <iostream>
+#include <utility>
 #include <type_traits>
 
 namespace sample::detail {
@@ -20,14 +20,11 @@ void swap(SmallBuffer<BaseType, BufferSize>& lhs,
 
 template <typename BaseType, std::size_t BufferSize>
 struct SmallBuffer {
-    // TYPES
-    template <typename T> struct Key {};
-
     // CREATORS
     SmallBuffer(const SmallBuffer& rhs);
     SmallBuffer(SmallBuffer&& rhs);
     template <typename T, typename... Args>
-    SmallBuffer(Key<T>, Args&&... args);
+    SmallBuffer(std::in_place_type_t<T>, Args&&... args);
     template <typename OtherBase, std::size_t OtherBufferSize,
               typename = std::enable_if_t<std::is_base_of_v<BaseType, OtherBase>>>
     SmallBuffer(const SmallBuffer<OtherBase, OtherBufferSize>& rhs);
@@ -140,7 +137,8 @@ void deleter(BaseType* obj)
 // CREATORS
 template <typename BaseType, std::size_t BufferSize>
 template <typename T, typename... Args>
-inline SmallBuffer<BaseType, BufferSize>::SmallBuffer(Key<T>, Args&&... args)
+inline SmallBuffer<BaseType, BufferSize>::SmallBuffer(std::in_place_type_t<T>, 
+    Args&&... args)
     : d_cloner(&cloner<BaseType, std::decay_t<T>>)
     , d_mover(&mover<BaseType, std::decay_t<T>, false>)
     , d_deleter(&deleter<BaseType, std::decay_t<T>, false>)

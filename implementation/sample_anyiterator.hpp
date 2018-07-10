@@ -396,8 +396,6 @@ private:
 private:
     // PRIVATE TYPES
     using BufferType = detail::SmallBuffer<detail::AnyIterator_Base>;
-    template <typename T>
-    using BufferKey = typename BufferType::template Key<T>;
 
 private:
     // PRIVATE CREATORS
@@ -840,8 +838,8 @@ template <typename IteratorCategory, typename ValueType,
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
     DifferenceType>::any_iterator(const std::random_access_iterator_tag&) 
         noexcept
-    : d_buffer(BufferKey<detail::AnyRandomAccessIterator_Impl<void, ValueType,
-        Reference, Pointer, DifferenceType>>{})
+    : d_buffer(std::in_place_type<detail::AnyRandomAccessIterator_Impl<void, ValueType,
+        Reference, Pointer, DifferenceType>>)
 {}
 
 template <typename IteratorCategory, typename ValueType,
@@ -849,8 +847,8 @@ template <typename IteratorCategory, typename ValueType,
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
     DifferenceType>::any_iterator(const std::bidirectional_iterator_tag&) 
         noexcept
-    : d_buffer(BufferKey<detail::AnyBidirectionalIterator_Impl<void, ValueType,
-        Reference, Pointer>>{})
+    : d_buffer(std::in_place_type<detail::AnyBidirectionalIterator_Impl<void, ValueType,
+        Reference, Pointer>>)
 {}
 
 template <typename IteratorCategory, typename ValueType,
@@ -858,8 +856,8 @@ template <typename IteratorCategory, typename ValueType,
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
     DifferenceType>::any_iterator(const std::forward_iterator_tag&) 
         noexcept
-    : d_buffer(BufferKey<detail::AnyForwardIterator_Impl<void, ValueType,
-        Reference, Pointer>>{})
+    : d_buffer(std::in_place_type<detail::AnyForwardIterator_Impl<void, ValueType,
+        Reference, Pointer>>)
 {}
 
 template <typename IteratorCategory, typename ValueType,
@@ -868,8 +866,8 @@ template <typename RandIt>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
     DifferenceType>::any_iterator(const std::random_access_iterator_tag&,
         RandIt&& it) 
-    : d_buffer(BufferKey<detail::AnyRandomAccessIterator_Impl<std::decay_t<RandIt>, 
-        ValueType, Reference, Pointer, DifferenceType>>{}, std::forward<RandIt>(it))
+    : d_buffer(std::in_place_type<detail::AnyRandomAccessIterator_Impl<std::decay_t<RandIt>, 
+        ValueType, Reference, Pointer, DifferenceType>>, std::forward<RandIt>(it))
 {}
 
 template <typename IteratorCategory, typename ValueType,
@@ -878,8 +876,8 @@ template <typename BiDirIt>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
     DifferenceType>::any_iterator(const std::bidirectional_iterator_tag&,
         BiDirIt&& it) 
-    : d_buffer(BufferKey<detail::AnyBidirectionalIterator_Impl<std::decay_t<BiDirIt>, 
-        ValueType, Reference, Pointer>>{}, std::forward<BiDirIt>(it))
+    : d_buffer(std::in_place_type<detail::AnyBidirectionalIterator_Impl<std::decay_t<BiDirIt>, 
+        ValueType, Reference, Pointer>>, std::forward<BiDirIt>(it))
 {}
 
 template <typename IteratorCategory, typename ValueType,
@@ -888,8 +886,8 @@ template <typename FwdIt>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
     DifferenceType>::any_iterator(const std::forward_iterator_tag&,
         FwdIt&& it) 
-    : d_buffer(BufferKey<detail::AnyForwardIterator_Impl<std::decay_t<FwdIt>, 
-        ValueType, Reference, Pointer>>{}, std::forward<FwdIt>(it))
+    : d_buffer(std::in_place_type<detail::AnyForwardIterator_Impl<std::decay_t<FwdIt>, 
+        ValueType, Reference, Pointer>>, std::forward<FwdIt>(it))
 {}
 
 template <typename IteratorCategory, typename ValueType,
@@ -898,8 +896,8 @@ template <typename InIt>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
     DifferenceType>::any_iterator(const std::input_iterator_tag&,
         InIt&& it) 
-    : d_buffer(BufferKey<detail::AnyInputIterator_Impl<std::decay_t<InIt>, 
-        ValueType, Reference, Pointer>>{}, std::forward<InIt>(it))
+    : d_buffer(std::in_place_type<detail::AnyInputIterator_Impl<std::decay_t<InIt>, 
+        ValueType, Reference, Pointer>>, std::forward<InIt>(it))
 {}
 
 template <typename IteratorCategory, typename ValueType,
@@ -908,8 +906,8 @@ template <typename OutIt>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
     DifferenceType>::any_iterator(const std::output_iterator_tag&,
         OutIt&& it) 
-    : d_buffer(BufferKey<detail::AnyOutputIterator_Impl<std::decay_t<OutIt>, 
-        ValueType>>{}, std::forward<OutIt>(it))
+    : d_buffer(std::in_place_type<detail::AnyOutputIterator_Impl<std::decay_t<OutIt>, 
+        ValueType>>, std::forward<OutIt>(it))
 {}
 
 template <typename IteratorCategory, typename ValueType,
