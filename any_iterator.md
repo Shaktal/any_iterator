@@ -329,12 +329,12 @@ namespace std {
 
 `reference operator*() const;`  
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Returns a `reference` to the result of dereferencing the underlying iterator.  
-&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and contain a dereferencible underlying iterator. Otherwise the behaviour is undefined.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and contain a dereferencable underlying iterator. Otherwise the behaviour is undefined.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `input_iterator_tag`.
 
 `/*unspecified*/ operator->() const;`  
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Returns an unspecified object which implements `operator->` such that the end result is as if the user had called `operator->` directly on the underlying iterator.  
-&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and contain a dereferencible underlying iterator. Otherwise the behaviour is undefined.  
+&nbsp;&nbsp;&nbsp;&nbsp;_Requires_: The `any_iterator` shall be valid and contain a dereferencable underlying iterator. Otherwise the behaviour is undefined.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `input_iterator_tag`.
 
 `reference operator[](difference_type offset) const;`  
