@@ -7,7 +7,7 @@ __Target__: Library Evolution Working Group (LEWG)
 ## Abstract
 This paper proposes adding the template class `std::any_iterator` - a type-erased iterator which can be used where physical encapsulation is desired but the generality of iterators is beneficial. It also proposes the helper alias templates: `std::any_input_iterator`, `std::any_output_iterator`, `std::any_forward_iterator`, `std::any_bidirectional_iterator` and `std::any_random_access_iterator`.
 
-## Table of Concepts
+## Table of Contents
 - [Motivation](#motivation)
   - [Example Usage](#example-usage)
   - [Memory Allocation](#memory-allocation)
@@ -15,6 +15,8 @@ This paper proposes adding the template class `std::any_iterator` - a type-erase
   - [Alternatives](#alternatives)
 - [Prior Art](#prior-art)
 - [Impact on the standard](#impact-on-the-standard)
+  - [Interaction with Ranges](#interaction-with-ranges)
+  - [Interaction with Modules](#interaction-with-modules)
 - [Wording](#wording)
   - [Synopsis](#synopsis)
   - [Specification](#specification)
