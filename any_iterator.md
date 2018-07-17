@@ -128,7 +128,7 @@ It is worth noting that as with any type-erased mechanism, allocation is often n
 
 Following the example given by removal of the `std::allocator_arg_t` constructors for `std::function` and their lack of inclusion in `std::any`, we have not included them for `std::any_iterator`.
 
-It is possible that polymorphic memory resources, i.e. `std::pmr::memory_resource`-derived classes could be useful in providing customizable allocation behaviour. However, as this was neither used in design of `std::any` nor retroactively applied to `std::function` it is not a part of this proposal.
+Instead, we provide constructs which take a final parameter of type `std::pmr::memory_resource*`, which are then used for all memory allocations when required. This parameter is defaulted to `nullptr` and if this is provided, then the currently installed default allocator is used, retrieved as if through a call to `std::pmr::get_default_resource`.
 
 ### User-defined Types
 Whilst I anticipate that most use-cases will be satisfied with the existing `any_iterator` which is fully compatible with the STL iterator categories, there are projects which extend, or use different iterator categories. For these projects (such as Boost.Iterator), it would be a valid customization point for them to specialize the `std::any_iterator` class for their iterator category as it would be a UDT. 
