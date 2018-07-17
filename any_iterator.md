@@ -182,17 +182,21 @@ namespace std {
         using iterator_category = IteratorCategory;
 
         // CREATORS
-        any_iterator() noexcept;
+        any_iterator(std::pmr::memory_resource* res = nullptr) noexcept;
             // SFINAE'd out unless ForwardIterator
 
-        any_iterator(const any_iterator&);
-        any_iterator(any_iterator&&);
+        any_iterator(const any_iterator&,
+            std::pmr::memory_resource* res = nullptr);
+        any_iterator(any_iterator&&,
+            std::pmr::memory_resource* res = nullptr);
 
         template <typename It>
-        any_iterator(It it);
+        any_iterator(It it,
+            std::pmr::memory_resource* res = nullptr);
 
         template <typename OtherAnyIterator>
-        any_iterator(OtherAnyIterator&& other_any_iterator);
+        any_iterator(OtherAnyIterator&& other_any_iterator,
+            std::pmr::memory_resource* res = nullptr);
 
         ~any_iterator();
 
@@ -306,23 +310,23 @@ namespace std {
 ### Specification
 #### Class template `any_iterator` [any_iterator]
 ##### Class template `any_iterator` constructors [any_iterator.ctor]
-`any_iterator() noexcept`  
-&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Constructs an empty `any_iterator`, equivalent to the singular iterator for `ForwardIterator`.  
+`any_iterator(std::pmr::memory_resource* res = nullptr) noexcept`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Constructs an empty `any_iterator`, equivalent to the singular iterator for `ForwardIterator`. Uses the provided memory resource for all future allocations, if the provided memory resource pointer is the null pointer then the currently installed default memory resource shall be used.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This constructor shall not participate in overload resolution unless `iterator_category` is derived from `input_iterator_tag`.
 
-`any_iterator(const any_iterator& other)`  
-&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Copy-constructs an `any_iterator` from `other`, such that the underlying iterator is formed by copy-construction from the underlying iterator of `other`.
+`any_iterator(const any_iterator& other, std::pmr::memory_resource* res = nullptr)`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Copy-constructs an `any_iterator` from `other`, such that the underlying iterator is formed by copy-construction from the underlying iterator of `other`. Uses the provided memory resource for all future allocations, if the provided memory resource pointer is the null pointer then the currently installed default memory resource shall be used.
 
-`any_iterator(any_iterator&& other)`  
-&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Move-constructs an `any_iterator` from `other`, such that the underlying iterator is formed by move-construction from the underlying iterator of `other`.
+`any_iterator(any_iterator&& other, std::pmr::memory_resource* res = nullptr)`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Move-constructs an `any_iterator` from `other`, such that the underlying iterator is formed by move-construction from the underlying iterator of `other`. Uses the provided memory resource for all future allocations, if the provided memory resource pointer is the null pointer then the currently installed default memory resource shall be used.
 
-`template <typename It> any_iterator(It it)`  
-&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Constructs an `any_iterator` with a type-erased underlying iterator of type `It` move-constructed from `it`.   
+`template <typename It> any_iterator(It it, std::pmr::memory_resource* res = nullptr)`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Constructs an `any_iterator` with a type-erased underlying iterator of type `It` move-constructed from `it`. Uses the provided memory resource for all future allocations, if the provided memory resource pointer is the null pointer then the currently installed default memory resource shall be used.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This constructor only participates in overload resolution if the conditions for the `OtherAnyIterator` constructor are not met and `It` satisfies the appropriate concept form of `iterator_category`. For instance, if `iterator_category` is `output_iterator_tag` then `It` must satisfy the `OutputIterator` concept for this constructor to participate in overload resolution.
 
 `template <typename OtherAnyIterator>`  
-`any_iterator(OtherAnyIterator&& other_any_iterator)`  
-&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Constructs an `any_iterator` from `other` such that the underlying iterator is formed by construction from forwarding the underlying iterator of `other` using the value category of `other_any_iterator`.     
+`any_iterator(OtherAnyIterator&& other_any_iterator, std::pmr::memory_resource* res = nullptr)`  
+&nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Constructs an `any_iterator` from `other` such that the underlying iterator is formed by construction from forwarding the underlying iterator of `other` using the value category of `other_any_iterator`. Uses the provided memory resource for all future allocations, if the provided memory resource pointer is the null pointer then the currently installed default memory resource shall be used.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This constructor shall only participate in overload resolution if `OtherAnyIterator` is an `any_iterator` whose `iterator_category` is a derived-class of `iterator_category` and all other template parameters are the same.
 
 ##### Class template `any_iterator` observers [any_iterator.observers]

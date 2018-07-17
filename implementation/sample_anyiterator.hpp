@@ -14,6 +14,14 @@
 #include <iterator>
 #include <type_traits>
 
+#if __has_include(<memory_resource>)
+    #include <memory_resource>
+    namespace pmr = std::pmr;
+#else
+    #include <experimental/memory_resource>
+    namespace pmr = std::experimental::pmr;
+#endif // __has_include(<memory_resource>)
+
 namespace sample {
 template <typename IteratorCategory, 
           typename ValueType,
@@ -76,23 +84,31 @@ struct any_iterator {
                 std::forward_iterator_tag,
                 iterator_category
               >>>
-    any_iterator() noexcept;
+    any_iterator(pmr::memory_resource* res = nullptr) noexcept;
         // Default construct an `any_iterator` (thus constructing it in the
-        // singular iterator state).
+        // singular iterator state). Uses `res` for all memory allocations.
+        // If `res` is the null pointer then the currently installed default
+        // memory resource will be used.
         //
         // Only participates in the overload set if `IteratorCategory` is
         // derived from `std::forward_iterator_tag`.
 
-    any_iterator(const any_iterator&);
+    any_iterator(const any_iterator&,
+        pmr::memory_resource* res = nullptr);
         // Copy construct an `any_iterator` from an identically specified
-        // `any_iterator`.
+        // `any_iterator`. Uses `res` for all memory allocations. If `res`
+        // is the null pointer, then the currently installed default memory 
+        // resource will be used.
         //
         // Throws if allocation was required and failed, or if the copy
         // constructor of `It` throws.
 
-    any_iterator(any_iterator&&);
+    any_iterator(any_iterator&&,
+        pmr::memory_resource* res = nullptr);
         // Move construct an `any_iterator` from an identically specified
-        // `any_iterator`.
+        // `any_iterator`. Uses `res` for all memory allocations. If `res`
+        // is the null pointer, then the currently installed default memory
+        // resource will be used.
         //
         // Throws if allocation was required and failed, or if the move
         // constructor of `It` threw.
@@ -102,8 +118,10 @@ struct any_iterator {
                 iterator_category, 
                 typename std::iterator_traits<It>::iterator_category
               >>>
-    any_iterator(It it);
-        // Construct an `any_iterator` from an `It`.
+    any_iterator(It it, pmr::memory_resource* res = nullptr);
+        // Construct an `any_iterator` from an `It`. Uses `res` for all 
+        // memory allocations. If `res` is the null pointer, then the 
+        // currently installed default memory resource will be used.
         //
         // Only participates in the overload set if `It` satisfies the
         // IteratorCategory of this `any_iterator`.
@@ -114,9 +132,12 @@ struct any_iterator {
     template <typename OtherAnyIterator,
               typename = std::enable_if_t<detail::is_compatible_iterator_v<
                 any_iterator, OtherAnyIterator>>>
-    any_iterator(OtherAnyIterator&& other_any_iterator);
+    any_iterator(OtherAnyIterator&& other_any_iterator,
+        pmr::memory_resource* res = nullptr);
         // Construct an `any_iterator` from the underlying iterator of 
-        // `other_any_iterator`.
+        // `other_any_iterator`. Uses `res` for all memory allocations.
+        // If `res` is the null pointer, then the currently installed
+        // memory resource will be used.
         //
         // Only participates in the overload set if `OtherAnyIterator` 
         // is a compatible iterator of this `any_iterator`, i.e. it 
@@ -399,20 +420,28 @@ private:
 
 private:
     // PRIVATE CREATORS
-    any_iterator(const std::random_access_iterator_tag&) noexcept;
-    any_iterator(const std::bidirectional_iterator_tag&) noexcept;
-    any_iterator(const std::forward_iterator_tag&) noexcept;
+    any_iterator(const std::random_access_iterator_tag&,
+        pmr::memory_resource* res) noexcept;
+    any_iterator(const std::bidirectional_iterator_tag&,
+        pmr::memory_resource* res) noexcept;
+    any_iterator(const std::forward_iterator_tag&,
+        pmr::memory_resource* res) noexcept;
 
     template <typename RandIt>
-    any_iterator(const std::random_access_iterator_tag&, RandIt&& it);
+    any_iterator(const std::random_access_iterator_tag&, RandIt&& it,
+        pmr::memory_resource* res);
     template <typename BiDirIt>
-    any_iterator(const std::bidirectional_iterator_tag&, BiDirIt&& it);
+    any_iterator(const std::bidirectional_iterator_tag&, BiDirIt&& it,
+        pmr::memory_resource* res);
     template <typename FwdIt>
-    any_iterator(const std::forward_iterator_tag&, FwdIt&& it);
+    any_iterator(const std::forward_iterator_tag&, FwdIt&& it,
+        pmr::memory_resource* res);
     template <typename InIt>
-    any_iterator(const std::input_iterator_tag&, InIt&& it);
+    any_iterator(const std::input_iterator_tag&, InIt&& it,
+        pmr::memory_resource* res);
     template <typename OutIt>
-    any_iterator(const std::output_iterator_tag&, OutIt&& it);
+    any_iterator(const std::output_iterator_tag&, OutIt&& it,
+        pmr::memory_resource* res);
 
 private:
     // DATA
@@ -421,6 +450,15 @@ private:
 
 template <typename It>
 any_iterator(It) -> any_iterator<
+    typename std::iterator_traits<It>::iterator_category,
+    typename std::iterator_traits<It>::value_type,
+    typename std::iterator_traits<It>::reference,
+    typename std::iterator_traits<It>::pointer,
+    typename std::iterator_traits<It>::difference_type
+>;
+
+template <typename It>
+any_iterator(It, pmr::memory_resource*) -> any_iterator<
     typename std::iterator_traits<It>::iterator_category,
     typename std::iterator_traits<It>::value_type,
     typename std::iterator_traits<It>::reference,
@@ -464,35 +502,42 @@ template <typename IteratorCategory, typename ValueType,
           typename Reference, typename Pointer, typename DifferenceType>
 template <bool True, typename>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
-    DifferenceType>::any_iterator() noexcept
-    : any_iterator(IteratorCategory{})
+    DifferenceType>::any_iterator(pmr::memory_resource* res) noexcept
+    : any_iterator(IteratorCategory{}, res)
 {}
 
 template <typename IteratorCategory, typename ValueType,
           typename Reference, typename Pointer, typename DifferenceType>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
-    DifferenceType>::any_iterator(const any_iterator&) = default;
+    DifferenceType>::any_iterator(const any_iterator& other,
+        pmr::memory_resource* res)
+    : d_buffer(other.d_buffer, res)
+{}
 
 template <typename IteratorCategory, typename ValueType,
           typename Reference, typename Pointer, typename DifferenceType>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
-    DifferenceType>::any_iterator(any_iterator&&) = default;
+    DifferenceType>::any_iterator(any_iterator&& other,
+        pmr::memory_resource* res)
+    : d_buffer(std::move(other.d_buffer), res)
+{}
 
 template <typename IteratorCategory, typename ValueType,
           typename Reference, typename Pointer, typename DifferenceType>
 template <typename It, typename>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
-    DifferenceType>::any_iterator(It it)
-    : any_iterator(IteratorCategory{}, std::move(it))
+    DifferenceType>::any_iterator(It it, pmr::memory_resource* res)
+    : any_iterator(IteratorCategory{}, std::move(it), res)
 {}
 
 template <typename IteratorCategory, typename ValueType,
           typename Reference, typename Pointer, typename DifferenceType>
 template <typename OtherAnyIterator, typename>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
-    DifferenceType>::any_iterator(OtherAnyIterator&& other_any_iterator)
-    : any_iterator(detail::forward_like<OtherAnyIterator>(
-        other_any_iterator.d_buffer))
+    DifferenceType>::any_iterator(OtherAnyIterator&& other_any_iterator,
+        pmr::memory_resource* res)
+    : d_buffer(detail::forward_like<OtherAnyIterator>(
+        other_any_iterator.d_buffer), res)
 {}
 
 template <typename IteratorCategory, typename ValueType,
@@ -836,27 +881,30 @@ inline any_iterator<IteratorCategory, ValueType, Reference,
 template <typename IteratorCategory, typename ValueType,
           typename Reference, typename Pointer, typename DifferenceType>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
-    DifferenceType>::any_iterator(const std::random_access_iterator_tag&) 
-        noexcept
-    : d_buffer(std::in_place_type<detail::AnyRandomAccessIterator_Impl<void, ValueType,
+    DifferenceType>::any_iterator(const std::random_access_iterator_tag&,
+        pmr::memory_resource* res) noexcept
+    : d_buffer(std::allocator_arg, res,
+        std::in_place_type<detail::AnyRandomAccessIterator_Impl<void, ValueType,
         Reference, Pointer, DifferenceType>>)
 {}
 
 template <typename IteratorCategory, typename ValueType,
           typename Reference, typename Pointer, typename DifferenceType>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
-    DifferenceType>::any_iterator(const std::bidirectional_iterator_tag&) 
-        noexcept
-    : d_buffer(std::in_place_type<detail::AnyBidirectionalIterator_Impl<void, ValueType,
+    DifferenceType>::any_iterator(const std::bidirectional_iterator_tag&,
+        pmr::memory_resource* res) noexcept
+    : d_buffer(std::allocator_arg, res,
+        std::in_place_type<detail::AnyBidirectionalIterator_Impl<void, ValueType,
         Reference, Pointer>>)
 {}
 
 template <typename IteratorCategory, typename ValueType,
           typename Reference, typename Pointer, typename DifferenceType>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
-    DifferenceType>::any_iterator(const std::forward_iterator_tag&) 
-        noexcept
-    : d_buffer(std::in_place_type<detail::AnyForwardIterator_Impl<void, ValueType,
+    DifferenceType>::any_iterator(const std::forward_iterator_tag&,
+        pmr::memory_resource* res) noexcept
+    : d_buffer(std::allocator_arg, res,
+        std::in_place_type<detail::AnyForwardIterator_Impl<void, ValueType,
         Reference, Pointer>>)
 {}
 
@@ -865,8 +913,9 @@ template <typename IteratorCategory, typename ValueType,
 template <typename RandIt>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
     DifferenceType>::any_iterator(const std::random_access_iterator_tag&,
-        RandIt&& it) 
-    : d_buffer(std::in_place_type<detail::AnyRandomAccessIterator_Impl<std::decay_t<RandIt>, 
+        RandIt&& it, pmr::memory_resource* res) 
+    : d_buffer(std::allocator_arg, res,
+        std::in_place_type<detail::AnyRandomAccessIterator_Impl<std::decay_t<RandIt>, 
         ValueType, Reference, Pointer, DifferenceType>>, std::forward<RandIt>(it))
 {}
 
@@ -875,8 +924,9 @@ template <typename IteratorCategory, typename ValueType,
 template <typename BiDirIt>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
     DifferenceType>::any_iterator(const std::bidirectional_iterator_tag&,
-        BiDirIt&& it) 
-    : d_buffer(std::in_place_type<detail::AnyBidirectionalIterator_Impl<std::decay_t<BiDirIt>, 
+        BiDirIt&& it, pmr::memory_resource* res) 
+    : d_buffer(std::allocator_arg, res,
+        std::in_place_type<detail::AnyBidirectionalIterator_Impl<std::decay_t<BiDirIt>, 
         ValueType, Reference, Pointer>>, std::forward<BiDirIt>(it))
 {}
 
@@ -885,8 +935,9 @@ template <typename IteratorCategory, typename ValueType,
 template <typename FwdIt>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
     DifferenceType>::any_iterator(const std::forward_iterator_tag&,
-        FwdIt&& it) 
-    : d_buffer(std::in_place_type<detail::AnyForwardIterator_Impl<std::decay_t<FwdIt>, 
+        FwdIt&& it, pmr::memory_resource* res) 
+    : d_buffer(std::allocator_arg, res,
+        std::in_place_type<detail::AnyForwardIterator_Impl<std::decay_t<FwdIt>, 
         ValueType, Reference, Pointer>>, std::forward<FwdIt>(it))
 {}
 
@@ -895,8 +946,9 @@ template <typename IteratorCategory, typename ValueType,
 template <typename InIt>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
     DifferenceType>::any_iterator(const std::input_iterator_tag&,
-        InIt&& it) 
-    : d_buffer(std::in_place_type<detail::AnyInputIterator_Impl<std::decay_t<InIt>, 
+        InIt&& it, pmr::memory_resource* res) 
+    : d_buffer(std::allocator_arg, res,
+        std::in_place_type<detail::AnyInputIterator_Impl<std::decay_t<InIt>, 
         ValueType, Reference, Pointer>>, std::forward<InIt>(it))
 {}
 
@@ -905,8 +957,9 @@ template <typename IteratorCategory, typename ValueType,
 template <typename OutIt>
 inline any_iterator<IteratorCategory, ValueType, Reference, Pointer, 
     DifferenceType>::any_iterator(const std::output_iterator_tag&,
-        OutIt&& it) 
-    : d_buffer(std::in_place_type<detail::AnyOutputIterator_Impl<std::decay_t<OutIt>, 
+        OutIt&& it, pmr::memory_resource* res) 
+    : d_buffer(std::allocator_arg, res, 
+        std::in_place_type<detail::AnyOutputIterator_Impl<std::decay_t<OutIt>, 
         ValueType>>, std::forward<OutIt>(it))
 {}
 
