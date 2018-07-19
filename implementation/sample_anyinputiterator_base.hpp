@@ -110,7 +110,7 @@ inline typename AnyInputIterator_Impl<InputIt, ValueType,
     Reference, Pointer>::pointer AnyInputIterator_Impl<InputIt,
     ValueType, Reference, Pointer>::operator->() const
 {
-    return d_it.operator->();
+    return std::addressof(*d_it);
 }
 
 // MANIPULATORS

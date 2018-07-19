@@ -3,3 +3,4 @@ CMakeCache.txt
 cmake_*
 Makefile
 AnyIteratorTests
+AnyIteratorBenchmarks
