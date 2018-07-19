@@ -46,6 +46,8 @@ int main()
 ### Benchmarks
 There are some simple microbenchmarks included using Google Benchmark. These are provided to give some perspective on the relative performance of using the iterator directly or using an `any_iterator`. 
 
+These can be built by cloning the repository as above and initializing CMake (preferably using the `-DCMAKE_BUILD_TYPE=Release` flag) and then calling `make AnyIteratorBenchmarks`.
+
 On my machine (Intel® Core™ i7-3630QM CPU @ 2.40GHz × 8, 7.7GiB DDR4 RAM) I get the following results:
 
 ```
