@@ -44,7 +44,7 @@ int main()
 ```
 
 ### Benchmarks
-There are some simple microbenchmarks included using Google Benchmark. These are provided to give some perspective on the relative performance of using the iterator directly or using an `any_iterator`. 
+There are some simple microbenchmarks included within the `implementation/benchmarks` folder, using Google Benchmark. These are provided to give some perspective on the relative performance of using the iterator directly or using an `any_iterator`. 
 
 These can be built by cloning the repository as above and initializing CMake (preferably using the `-DCMAKE_BUILD_TYPE=Release` flag) and then calling `make AnyIteratorBenchmarks`.
 
