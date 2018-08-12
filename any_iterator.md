@@ -1,8 +1,8 @@
-# Type Erased Iterators for modern C++
+# D1159R1 - Type Erased Iterators for modern C++
 
 __Author__: Thomas Russell \<thomas.russell97@googlemail.com\>  
 __Date__: 2nd July 2018  
-__Target__: Library Evolution Working Group (LEWG)
+__Audience__: Library Evolution Working Group (LEWG)
 
 ## Abstract
 This paper proposes adding the class template `std::any_iterator` - a type-erased iterator which can be used where physical encapsulation is desired but the generality of iterators is beneficial. It also proposes the helper alias templates: `std::any_input_iterator`, `std::any_output_iterator`, `std::any_forward_iterator`, `std::any_bidirectional_iterator` and `std::any_random_access_iterator`.
@@ -141,8 +141,7 @@ The following are alternative solutions to this problem:
   ```c++
   std::opaque<Concept> obj(somethingModellingConcept);
   ```
-
-  Where `std::opaque` would deduce from `Concept` the necessary members. This would require extensive changes to the core language and would provide a much more generic and powerful tool than proposed here. It may not even be possible.
+  where `std::opaque` would deduce from `Concept` the necessary members. This would require extensive changes to the core language and would provide a much more generic and powerful tool than proposed here. It may not even be possible.
 
 ## Prior Art
 Analogous classes exist in various other places within the C++ community:
@@ -159,7 +158,7 @@ I have also been informally told that analogous classes exist in various librari
 This proposal is a pure library extension. It requires addition of a new standard library header `<any_iterator>`, no modifications to other headers are required.
 
 ### Interaction with Ranges
-It is worth noting at this point that both Boost.Range and ranges v3 have an `any_range` class, which acts as a type-erased range adapter. It is likely that such a class would be added to the ISO C++ standard at a later date, in this event, having a pre-existing `any_iterator` would ease the burden of implementation on standard library vendors and ease burden of specification on LEWG.
+It is worth noting at this point that both Boost.Range and ranges v3 have an `any_range` class, which acts as a type-erased range adapter. It is likely that such a class would be added to the ISO C++ standard at a later date, in this event, having a pre-existing `any_iterator` would ease the burden of implementation on standard library vendors and ease the burden of specification on LEWG.
 
 It is also notable that the Ranges specification describes ranges in terms of iterators and _sentinels_. Within the range v3 library there is an `any_sentinel` class, which is used to mark the end of a type-erased range. However, implementing this is impossible without storage of a type-erased range. 
 
