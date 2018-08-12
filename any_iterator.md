@@ -1,4 +1,4 @@
-# D1159R1 - Type Erased Iterators for modern C++
+# D1159R0 - Type Erased Iterators for modern C++
 
 __Author__: Thomas Russell \<thomas.russell97@googlemail.com\>  
 __Date__: 2nd July 2018  
@@ -22,6 +22,8 @@ A sample implementation and the latest version of this proposal can be found at:
 - [Wording](#wording)
   - [Synopsis](#synopsis)
   - [Specification](#specification)
+- [Acknowledgements](#acknowledgements)
+- [References](#references)
 
 ## Motivation
 Iterators (and soon, ranges also) are a powerful and generic abstraction idiom in C++. They allow library and application developers to write their functions restricted only on the properties that they actually need (traversal requirements, dereference type, etc.).
@@ -436,3 +438,11 @@ namespace std {
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Retreats the underlying iterator of `*this` by `offset` by calling `operator-=`.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Requires_: It is valid to retreat the underlying iterator of `*this` by `offset`.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `random_access_iterator_tag`.
+
+## Acknowledgements
+I would like to thank the members of the BSI panel for their feedback on early drafts of this paper. 
+
+## References
+- Boost.Range (`any_range`) - https://www.boost.org/doc/libs/1_67_0/libs/range/doc/html/range/reference/ranges/any_range.html  
+- Thomas Becker's `any_iterator` implementation - http://thbecker.net/free_software_utilities/type_erasure_for_cpp_iterators/any_iterator.html
+- 
