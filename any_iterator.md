@@ -132,6 +132,8 @@ Following the example given by removal of the `std::allocator_arg_t` constructor
 
 It is possible that polymorphic memory resources, i.e. std::pmr::memory_resource-derived classes could be useful in providing customizable allocation behaviour. However, as this was neither used in design of std::any nor retroactively applied to std::function it is not a part of this proposal.
 
+_N.B. There is a branch on the github repository that this proposal is located in that contains a version of this proposal and a sample implementation using `std::pmr::memory_resource`._
+
 ### User-defined Types
 Whilst I anticipate that most use-cases will be satisfied with the existing `any_iterator` which is fully compatible with the STL iterator categories, there are projects which extend, or use different iterator categories. For these projects (such as Boost.Iterator), it would be a valid customization point for them to specialize the `std::any_iterator` class for their iterator category as it would be a UDT. 
 
