@@ -1,8 +1,8 @@
-# Type Erased Iterators for modern C++
+# D1159R0 - Type Erased Iterators for modern C++
 
 __Author__: Thomas Russell \<thomas.russell97@googlemail.com\>  
 __Date__: 2nd July 2018  
-__Target__: Library Evolution Working Group (LEWG)
+__Audience__: Library Evolution Working Group (LEWG)
 
 ## Abstract
 This paper proposes adding the class template `std::any_iterator` - a type-erased iterator which can be used where physical encapsulation is desired but the generality of iterators is beneficial. It also proposes the helper alias templates: `std::any_input_iterator`, `std::any_output_iterator`, `std::any_forward_iterator`, `std::any_bidirectional_iterator` and `std::any_random_access_iterator`.
@@ -22,6 +22,8 @@ A sample implementation and the latest version of this proposal can be found at:
 - [Wording](#wording)
   - [Synopsis](#synopsis)
   - [Specification](#specification)
+- [Acknowledgements](#acknowledgements)
+- [References](#references)
 
 ## Motivation
 Iterators (and soon, ranges also) are a powerful and generic abstraction idiom in C++. They allow library and application developers to write their functions restricted only on the properties that they actually need (traversal requirements, dereference type, etc.).
@@ -128,7 +130,7 @@ It is worth noting that as with any type-erased mechanism, allocation is often n
 
 Following the example given by removal of the `std::allocator_arg_t` constructors for `std::function` and their lack of inclusion in `std::any`, we have not included them for `std::any_iterator`.
 
-It is possible that polymorphic memory resources, i.e. `std::pmr::memory_resource`-derived classes could be useful in providing customizable allocation behaviour. However, as this was neither used in design of `std::any` nor retroactively applied to `std::function` it is not a part of this proposal.
+It is possible that polymorphic memory resources, i.e. std::pmr::memory_resource-derived classes could be useful in providing customizable allocation behaviour. However, as this was neither used in design of std::any nor retroactively applied to std::function it is not a part of this proposal.
 
 ### User-defined Types
 Whilst I anticipate that most use-cases will be satisfied with the existing `any_iterator` which is fully compatible with the STL iterator categories, there are projects which extend, or use different iterator categories. For these projects (such as Boost.Iterator), it would be a valid customization point for them to specialize the `std::any_iterator` class for their iterator category as it would be a UDT. 
@@ -141,8 +143,7 @@ The following are alternative solutions to this problem:
   ```c++
   std::opaque<Concept> obj(somethingModellingConcept);
   ```
-
-  Where `std::opaque` would deduce from `Concept` the necessary members. This would require extensive changes to the core language and would provide a much more generic and powerful tool than proposed here. It may not even be possible.
+  where `std::opaque` would deduce from `Concept` the necessary members. This would require extensive changes to the core language and would provide a much more generic and powerful tool than proposed here. It may not even be possible.
 
 ## Prior Art
 Analogous classes exist in various other places within the C++ community:
@@ -159,7 +160,7 @@ I have also been informally told that analogous classes exist in various librari
 This proposal is a pure library extension. It requires addition of a new standard library header `<any_iterator>`, no modifications to other headers are required.
 
 ### Interaction with Ranges
-It is worth noting at this point that both Boost.Range and ranges v3 have an `any_range` class, which acts as a type-erased range adapter. It is likely that such a class would be added to the ISO C++ standard at a later date, in this event, having a pre-existing `any_iterator` would ease the burden of implementation on standard library vendors and ease burden of specification on LEWG.
+It is worth noting at this point that both Boost.Range and ranges v3 have an `any_range` class, which acts as a type-erased range adapter. It is likely that such a class would be added to the ISO C++ standard at a later date, in this event, having a pre-existing `any_iterator` would ease the burden of implementation on standard library vendors and ease the burden of specification on LEWG.
 
 It is also notable that the Ranges specification describes ranges in terms of iterators and _sentinels_. Within the range v3 library there is an `any_sentinel` class, which is used to mark the end of a type-erased range. However, implementing this is impossible without storage of a type-erased range. 
 
@@ -433,3 +434,13 @@ namespace std {
 &nbsp;&nbsp;&nbsp;&nbsp;_Effects_: Retreats the underlying iterator of `*this` by `offset` by calling `operator-=`.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Requires_: It is valid to retreat the underlying iterator of `*this` by `offset`.  
 &nbsp;&nbsp;&nbsp;&nbsp;_Remarks_: This operator shall not participate in overload resolution unless `iterator_category` is derived from `random_access_iterator_tag`.
+
+## Acknowledgements
+I would like to thank the members of the BSI panel for their feedback on early drafts of this paper. 
+
+## References
+- Boost.Range (`any_range`) - https://www.boost.org/doc/libs/1_67_0/libs/range/doc/html/range/reference/ranges/any_range.html  
+- Thomas Becker's `any_iterator` implementation - http://thbecker.net/free_software_utilities/type_erasure_for_cpp_iterators/any_iterator.html
+- Adobe ASL's `any_iterator` - http://stlab.adobe.com/classadobe_1_1any__iterator.html
+- Dyno example `any_iterator` - https://github.com/ldionne/dyno/blob/master/example/any_iterator.cpp
+- ACCU Article describing an `any_iterator` - https://accu.org/index.php/journals/479
